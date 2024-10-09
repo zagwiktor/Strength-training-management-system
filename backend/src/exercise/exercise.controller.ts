@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ValidationPipe, UsePipes, Req } from '@nestjs/common';
 import { ExerciseService } from './exercise.service';
 import { CreateExerciseDto } from './dto/create-exercise.dto';
 import { UpdateExerciseDto } from './dto/update-exercise.dto';
@@ -8,8 +8,10 @@ export class ExerciseController {
   constructor(private readonly exerciseService: ExerciseService) {}
 
   @Post()
-  create(@Body() createExerciseDto: CreateExerciseDto) {
-    return this.exerciseService.create(createExerciseDto);
+  @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: false }))
+  create(@Body() createExerciseDto: CreateExerciseDto, @Req() request) {
+    const userId = request.decodedData.sub;
+    return this.exerciseService.create(createExerciseDto, userId);
   }
 
   @Get()

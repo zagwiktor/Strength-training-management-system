@@ -14,7 +14,6 @@ import { AuthorizationService } from './authorization.service';
 @Injectable()
 export class AuthGuard implements CanActivate{
     constructor(
-        private jwtService: JwtService,
         private authService: AuthorizationService
     ) {}
 

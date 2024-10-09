@@ -5,6 +5,7 @@ import { User } from 'src/user/entities/user.entity';
 import { Repository } from 'typeorm';
 import { UserService } from 'src/user/user.service';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthorizationService {
@@ -22,10 +23,11 @@ constructor(
 
     async signIn(email: string, pass: string,): Promise<{access_token: string}> {
         const user = await this.usersService.findOne(email);
-        if(user?.password !== pass){
-            throw new UnauthorizedException();
-        }
+        const match = await bcrypt.compare(pass, user?.password);
 
+        if (!match) {
+          throw new UnauthorizedException('Invalid credentials!');
+        }
         const payload = { sub: user.id, username: user.email };
         return {
             access_token: await this.jwtService.signAsync(payload),

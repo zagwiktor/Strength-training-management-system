@@ -36,6 +36,10 @@ export class CreateUserDto {
     @IsNotEmpty()
     height: number;
 
+    @IsNumber()
+    @IsNotEmpty()
+    age: number;
+
     @IsString()
     @IsNotEmpty()
     gender: "Male" | "Female";
