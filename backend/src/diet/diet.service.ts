@@ -1,26 +1,72 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateDietDto } from './dto/create-diet.dto';
 import { UpdateDietDto } from './dto/update-diet.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Diet } from './entities/diet.entity';
+import { Repository } from 'typeorm';
+import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class DietService {
-  create(createDietDto: CreateDietDto) {
-    return 'This action adds a new diet';
+  constructor(
+    @InjectRepository(Diet) private dietRepository: Repository<Diet>,
+    private readonly userService: UserService
+  ){}
+  async create(createDietDto: CreateDietDto, userId: number) {
+    const user = await this.userService.findOne(userId);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    const macronutrientsCondition = ((createDietDto.carbohydrates * 4) + 
+                                      (createDietDto.protein * 4) 
+                                      + (createDietDto.fat * 9) 
+                                      === createDietDto.calories)
+    if(!macronutrientsCondition) {
+      throw new BadRequestException('Calories do not match the sum of macronutrients.');
+    }
+    const newDiet = new Diet();
+    newDiet.author = user;
+    newDiet.calories = createDietDto.calories;
+    newDiet.carbohydrates = createDietDto.carbohydrates;
+    newDiet.description = createDietDto.description;
+    newDiet.fat = createDietDto.fat;
+    newDiet.name = createDietDto.name;
+    newDiet.protein = createDietDto.protein;
+    return await this.dietRepository.save(newDiet);
   }
 
-  findAll() {
-    return `This action returns all diet`;
+  async findAll(userId: number) {
+    const user = await this.userService.findOne(userId);
+    if(!user) {
+      throw new NotFoundException('User not found');
+    }
+    const diets = await this.dietRepository.find({where: {author: {id: userId}}});
+    return diets;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} diet`;
+  async findOne(id: number, userId: number) {
+    const diet = await this.dietRepository.findOne({where: {id: id, author: {
+      id: userId
+    }}});
+    if(!diet){ 
+      throw new NotFoundException('Diet not found or you are not the author of this diet!');
+    }
+    return diet;
   }
 
-  update(id: number, updateDietDto: UpdateDietDto) {
-    return `This action updates a #${id} diet`;
+  async update(id: number, updateDietDto: UpdateDietDto, userId: number) {
+    const diet = await this.findOne(id, userId);
+    if(!diet){ 
+      throw new NotFoundException('');
+    }
+    return await this.dietRepository.update({id}, updateDietDto);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} diet`;
+  async remove(id: number, userId: number) {
+    const diet = await this.findOne(id, userId);
+    if(!diet){ 
+      throw new NotFoundException('');
+    }
+    return await this.dietRepository.remove(diet);
   }
 }

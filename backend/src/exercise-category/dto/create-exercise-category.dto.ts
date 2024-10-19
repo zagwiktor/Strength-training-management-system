@@ -6,6 +6,4 @@ export class CreateExerciseCategoryDto {
     @IsNotEmpty()
     @Length(2, 15, { message: 'Name must be between 5 and 15 characters long.' })
     name: string;
-
-    author: User;
 }

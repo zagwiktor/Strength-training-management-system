@@ -1,8 +1,7 @@
 import { ExerciseCategory } from "src/exercise-category/entities/exercise-category.entity";
+import { TrainingPlan } from "src/training-plan/entities/training-plan.entity";
 import { User } from "src/user/entities/user.entity";
-import { Column, Entity, JoinColumn, ManyToMany, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
-
-
+import { Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class Exercise {
@@ -13,7 +12,7 @@ export class Exercise {
     name: string;
 
     @Column()
-    comment: string;
+    description: string;
 
     @Column()
     sets: number;
@@ -21,15 +20,20 @@ export class Exercise {
     @Column()
     reps: number;
 
-    @Column()
+    @Column('json')
     tempo: [eccentricPhase: number, ePause: number, concentricPhases: number, cPause: number];
 
     @Column()
     load: number;
 
-    @ManyToMany(() => ExerciseCategory, (exerciseCategory) => exerciseCategory.id, {onDelete: "SET NULL"})
-    @JoinColumn({name: 'category_id'})
-    category: ExerciseCategory[];
+    @ManyToMany(() => ExerciseCategory, (categories) => categories.exercises ,{onDelete: "SET NULL"})
+    @JoinTable({name: 'exercises_categories'})
+    categories: ExerciseCategory[];
+
+    @ManyToMany(() => ExerciseCategory, (categories) => categories.exercises ,{onDelete: "SET NULL"})
+    @JoinTable({name: 'exercises_traning_plans'})
+    traningPlans: TrainingPlan[];
+
 
     @ManyToOne(() => User, (user) => user.exercises, { onDelete: 'CASCADE' })
     @JoinColumn({ name: 'author_id' })

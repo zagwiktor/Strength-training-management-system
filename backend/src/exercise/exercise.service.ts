@@ -19,8 +19,8 @@ export class ExerciseService {
     }
     const newExercise = new Exercise();
     newExercise.name = createExerciseDto.name;
-    newExercise.comment = createExerciseDto.comment;
-    newExercise.category = createExerciseDto.category;
+    newExercise.description = createExerciseDto.description;
+    newExercise.categories = createExerciseDto.categories;
     newExercise.author = user;
     newExercise.reps = createExerciseDto.reps;
     newExercise.sets = createExerciseDto.sets;
@@ -29,19 +29,40 @@ export class ExerciseService {
     return await this.exerciseRepository.save(newExercise);
   }
 
-  findAll() {
-    return `This action returns all exercise`;
+  async findAll(userId: number) {
+    const user = this.userService.findOne(userId);
+    if(!user) {
+      throw new NotFoundException('User not found');
+    }
+    const exercises = await this.exerciseRepository.find({where: {author: {id: userId}}});
+    return exercises;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} exercise`;
+  async findOne(id: number, userId: number) {
+    const exercise = await this.exerciseRepository.findOne({
+      where: {id: id, author: {
+        id: userId}}
+      });
+
+    if(!exercise){
+      throw new NotFoundException('Exercise not found or you are not the author of this category!');
+    }
+    return exercise;
   }
 
-  update(id: number, updateExerciseDto: UpdateExerciseDto) {
-    return `This action updates a #${id} exercise`;
+  async update(id: number, updateExerciseDto: UpdateExerciseDto, userId: number) {
+    const exercise = await this.findOne(id, userId);
+    if(!exercise){
+      throw new NotFoundException('');
+    }
+    return await this.exerciseRepository.update({id}, updateExerciseDto);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} exercise`;
+  async remove(id: number, userId: number) {
+    const exercise = await this.findOne(id, userId);
+    if(!exercise){
+      throw new NotFoundException('');
+    }
+    return await this.exerciseRepository.remove(exercise);
   }
 }

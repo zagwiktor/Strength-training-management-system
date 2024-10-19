@@ -9,6 +9,7 @@ import { RaportModule } from './raport/raport.module';
 import { ExerciseCategoryModule } from './exercise-category/exercise-category.module';
 import { AuthorizationModule } from './authorization/authorization.module';
 import { DietModule } from './diet/diet.module';
+import { TrainingPlanModule } from './training-plan/training-plan.module';
 
 @Module({
   imports: [
@@ -21,7 +22,8 @@ import { DietModule } from './diet/diet.module';
   RaportModule,
   ExerciseCategoryModule,
   AuthorizationModule,
-  DietModule
+  DietModule,
+  TrainingPlanModule
 ],
   controllers: [AppController],
   providers: [AppService],
