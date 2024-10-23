@@ -10,5 +10,6 @@ import { UserModule } from 'src/user/user.module';
   imports: [TypeOrmModule.forFeature([ExerciseCategory]), AuthorizationModule, UserModule],
   controllers: [ExerciseCategoryController],
   providers: [ExerciseCategoryService],
+  exports: [ExerciseCategoryService]
 })
 export class ExerciseCategoryModule {}

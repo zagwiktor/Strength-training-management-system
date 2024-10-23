@@ -1,5 +1,4 @@
 import { IsNotEmpty, IsNumber, IsString, Length, Min } from "class-validator";
-import { Unique } from "typeorm";
 
 export class CreateDietDto {
     

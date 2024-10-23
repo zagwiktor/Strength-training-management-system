@@ -22,19 +22,20 @@ export class ExerciseController {
     return this.exerciseService.findAll(userId);
   }
 
-  @Get(':id')
+  @Get('get/:id')
   findOne(@Param('id') id: string, @Req() request) {
     const userId = request.decodedData.sub;
     return this.exerciseService.findOne(+id, userId);
   }
 
-  @Patch(':id')
+  @Patch('update/:id')
+  @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: false }))
   update(@Param('id') id: string, @Body() updateExerciseDto: UpdateExerciseDto, @Req() request) {
     const userId = request.decodedData.sub;
     return this.exerciseService.update(+id, updateExerciseDto, userId);
   }
 
-  @Delete(':id')
+  @Delete('delete/:id')
   remove(@Param('id') id: string, @Req() request) {
     const userId = request.decodedData.sub;
     return this.exerciseService.remove(+id, userId);

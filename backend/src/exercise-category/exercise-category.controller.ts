@@ -17,14 +17,12 @@ export class ExerciseCategoryController {
   }
 
   @Get('get')
-  @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: false }))
   findAll(@Req() request) {
     const userId = request.decodedData.sub;
     return this.exerciseCategoryService.findAll(userId);
   }
 
   @Get('get/:id')
-  @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: false }))
   findOne(@Param('id') id: string, @Req() request) {
     const userId = request.decodedData.sub;
     return this.exerciseCategoryService.findOne(+id, userId);

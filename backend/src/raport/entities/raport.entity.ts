@@ -49,6 +49,6 @@ export class Raport{
     @Column()
     calfCircuit: number;
 
-    @Column()
+    @Column("int", { array: true })
     loads: number[];
 }

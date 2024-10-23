@@ -26,16 +26,15 @@ export class Exercise {
     @Column()
     load: number;
 
-    @ManyToMany(() => ExerciseCategory, (categories) => categories.exercises ,{onDelete: "SET NULL"})
+    @ManyToMany(() => ExerciseCategory, (categories) => categories.exercises ,{onDelete: 'CASCADE'})
     @JoinTable({name: 'exercises_categories'})
     categories: ExerciseCategory[];
 
-    @ManyToMany(() => ExerciseCategory, (categories) => categories.exercises ,{onDelete: "SET NULL"})
+    @ManyToMany(() => TrainingPlan, (categories) => categories.exercises ,{onDelete: 'CASCADE'})
     @JoinTable({name: 'exercises_traning_plans'})
     traningPlans: TrainingPlan[];
 
-
-    @ManyToOne(() => User, (user) => user.exercises, { onDelete: 'CASCADE' })
+    @ManyToOne(() => User, (user) => user.exercises, {onDelete: 'CASCADE'})
     @JoinColumn({ name: 'author_id' })
     author: User;
 }

@@ -3,7 +3,7 @@ import { CreateExerciseCategoryDto } from './dto/create-exercise-category.dto';
 import { UpdateExerciseCategoryDto } from './dto/update-exercise-category.dto';
 import { UserService } from 'src/user/user.service';
 import { ExerciseCategory } from './entities/exercise-category.entity';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
@@ -29,6 +29,16 @@ export class ExerciseCategoryService {
     return categories;
   }
   
+  async findByIds(categoriesIds: number[]): Promise<ExerciseCategory[]>{
+    const categories = await this.categoryRepository.find(
+      {where: {
+        id: In(categoriesIds)
+      }});
+    if(categoriesIds.length !== categories.length){
+      throw new NotFoundException('Some categories not found');
+    }
+    return categories;
+  }
 
   async findOne(id: number, userId: number) {
     const category = await this.categoryRepository.findOne({
@@ -43,18 +53,12 @@ export class ExerciseCategoryService {
   }
 
   async update(id: number, updateExerciseCategoryDto: UpdateExerciseCategoryDto, userId: number) {
-    const category = await this.findOne(id, userId);
-    if(!category){
-      throw new NotFoundException('Category not found or you are not the author of this category!');
-    }
+    await this.findOne(id, userId);
     return await this.categoryRepository.update({id}, updateExerciseCategoryDto);
   }
   
   async remove(id: number, userId: number) {
     const category = await this.findOne(id, userId);
-    if(!category){
-      throw new NotFoundException('Category not found or you are not the author of this category!');
-    }
     return await this.categoryRepository.remove(category);
   }
 }

@@ -2,9 +2,10 @@ import { IsDate } from "class-validator";
 import { Exercise } from "src/exercise/entities/exercise.entity";
 import { Raport } from "src/raport/entities/raport.entity";
 import { User } from "src/user/entities/user.entity";
-import { Column, Entity, JoinColumn, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn, Unique } from "typeorm";
 
 @Entity()
+@Unique(['name', 'author'])
 export class TrainingPlan {
     @PrimaryGeneratedColumn()
     id: number; 
@@ -14,7 +15,7 @@ export class TrainingPlan {
     author: User;
 
 
-    @ManyToMany(() => Exercise, (exercises) => exercises.traningPlans, {onDelete: 'SET NULL'})
+    @ManyToMany(() => Exercise, (exercises) => exercises.traningPlans, { onDelete: 'CASCADE' })
     exercises: Exercise[];
 
     @Column()
@@ -27,9 +28,8 @@ export class TrainingPlan {
         type: 'timestamp',
         default: () => 'CURRENT_TIMESTAMP',
       })
-      @IsDate()
     dateCreated: Date;
 
-    @OneToMany(()=>Raport,(raports)=>raports.trainingPlan)
+    @OneToMany(() => Raport,(raports)=>raports.trainingPlan)
     raports: Raport[];
 }

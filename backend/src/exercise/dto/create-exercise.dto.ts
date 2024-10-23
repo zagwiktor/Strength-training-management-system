@@ -1,12 +1,7 @@
-import { IsNotEmpty, IsNumber, IsString, Length, Min } from "class-validator";
+import { IsArray, IsNotEmpty, IsNumber, IsString, Length, Min } from "class-validator";
 import { ExerciseCategory } from "src/exercise-category/entities/exercise-category.entity";
 import { IsTempoValidation } from "./validator";
-import { User } from "src/user/entities/user.entity";
 
-/**
- * TODO
- * Przemysleć czy user musi tu być 
- */
 export class CreateExerciseDto {
 
     @IsString()
@@ -36,5 +31,6 @@ export class CreateExerciseDto {
     @Min(1, { message: 'Load must be greater than 0.' })
     load: number;
 
-    categories: ExerciseCategory[];
+    @IsArray()
+    categories: number[];
 }

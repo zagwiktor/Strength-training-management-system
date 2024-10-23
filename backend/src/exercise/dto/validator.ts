@@ -1,4 +1,4 @@
-import { registerDecorator, ValidationArguments, ValidationOptions, ValidatorConstraintInterface } from "class-validator";
+import { registerDecorator, ValidationOptions, ValidatorConstraintInterface } from "class-validator";
 
 export class isTempo implements ValidatorConstraintInterface {
     validate(tempo: any) {
