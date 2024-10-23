@@ -22,20 +22,20 @@ export class TrainingPlanController {
     return this.trainingPlanService.findAll(userId);
   }
 
-  @Get(':id')
+  @Get('get/:id')
   findOne(@Param('id') id: string, @Req() request) {
     const userId = request.decodedData.sub;
     return this.trainingPlanService.findOne(+id, userId);
   }
 
-  @Patch(':id')
+  @Patch('update/:id')
   @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: false }))
   update(@Param('id') id: string, @Body() updateTrainingPlanDto: UpdateTrainingPlanDto, @Req() request) {
     const userId = request.decodedData.sub;
     return this.trainingPlanService.update(+id, updateTrainingPlanDto, userId);
   }
 
-  @Delete(':id')
+  @Delete('delete/:id')
   remove(@Param('id') id: string, @Req() request) {
     const userId = request.decodedData.sub;
     return this.trainingPlanService.remove(+id, userId);

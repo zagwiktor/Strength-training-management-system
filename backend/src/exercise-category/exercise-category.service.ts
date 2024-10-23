@@ -30,6 +30,9 @@ export class ExerciseCategoryService {
   }
   
   async findByIds(categoriesIds: number[]): Promise<ExerciseCategory[]>{
+    if (!categoriesIds || categoriesIds.length === 0) {
+      return []; 
+    }
     const categories = await this.categoryRepository.find(
       {where: {
         id: In(categoriesIds)
@@ -45,7 +48,6 @@ export class ExerciseCategoryService {
       where: {id: id, author: {
         id: userId}}
       });
-
     if(!category){
       throw new NotFoundException('Category not found or you are not the author of this category!');
     }

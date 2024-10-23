@@ -55,18 +55,12 @@ export class DietService {
   }
 
   async update(id: number, updateDietDto: UpdateDietDto, userId: number) {
-    const diet = await this.findOne(id, userId);
-    if(!diet){ 
-      throw new NotFoundException('');
-    }
+    await this.findOne(id, userId);
     return await this.dietRepository.update({id}, updateDietDto);
   }
 
   async remove(id: number, userId: number) {
     const diet = await this.findOne(id, userId);
-    if(!diet){ 
-      throw new NotFoundException('');
-    }
     return await this.dietRepository.remove(diet);
   }
 }

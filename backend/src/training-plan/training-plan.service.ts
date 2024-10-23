@@ -49,11 +49,12 @@ export class TrainingPlanService {
   async update(id: number, updateTrainingPlanDto: UpdateTrainingPlanDto, userId: number) {
     await this.findOne(id, userId);
     const {exercises, ...rest} = updateTrainingPlanDto;
-    const exercisesEntities = await this.exerciseService.findByIds(exercises);
-    const updateResult = await this.traningPlanRepository.update({ id }, {
-      ...rest,
-      exercises: exercisesEntities,
-    });
+    let updateData: Partial<TrainingPlan> = { ...rest };
+    if(exercises && exercises.length > 0){
+      const exercisesEntities = await this.exerciseService.findByIds(exercises);
+      updateData.exercises = exercisesEntities;
+    };
+    const updateResult = await this.traningPlanRepository.update({ id }, updateData);
     if (updateResult.affected === 0) {
       throw new NotFoundException(`Training plan with id ${id} not found`);
     }

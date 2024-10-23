@@ -6,6 +6,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Exercise } from './entities/exercise.entity';
 import { In, Repository } from 'typeorm';
 import { ExerciseCategoryService } from 'src/exercise-category/exercise-category.service';
+import e from 'express';
 
 @Injectable()
 export class ExerciseService {
@@ -33,6 +34,9 @@ export class ExerciseService {
   }
 
   async findByIds(exerciseIds: number[]): Promise<Exercise[]> {
+    if (!exerciseIds || exerciseIds.length === 0){
+      return []
+    }
     const exercises = await this.exerciseRepository.find({
         where: {
             id: In(exerciseIds),
@@ -49,7 +53,9 @@ export class ExerciseService {
     if(!user) {
       throw new NotFoundException('User not found');
     }
-    const exercises = await this.exerciseRepository.find({where: {author: {id: userId}}});
+    const exercises = await this.exerciseRepository.find({
+      where: {author: {id: userId}},
+      relations: ['categories']});
     return exercises;
   }
 
@@ -65,17 +71,19 @@ export class ExerciseService {
 
   async update(id: number, updateExerciseDto: UpdateExerciseDto, userId: number) {
     await this.findOne(id, userId);
-    const {categories, ...rest} = updateExerciseDto;
-    const categoriesEntities = await this.categoryService.findByIds(categories)
-    const updateResult = await this.exerciseRepository.update({ id }, {
-      ...rest,
-      categories: categoriesEntities,
-    });
+    const { categories, ...rest } = updateExerciseDto;
+    let updateData: Partial<Exercise> = { ...rest };
+    if (categories && categories.length > 0) {
+        const categoriesEntities = await this.categoryService.findByIds(categories);
+        updateData.categories = categoriesEntities;
+    }
+    const updateResult = await this.exerciseRepository.update({ id }, updateData);
     if (updateResult.affected === 0) {
-      throw new NotFoundException(`Exercise with id ${id} not found`);
+        throw new NotFoundException(`Exercise with id ${id} not found`);
     }
     return await this.findOne(id, userId);
   }
+
 
   async remove(id: number, userId: number) {
     const exercise = await this.findOne(id, userId);
