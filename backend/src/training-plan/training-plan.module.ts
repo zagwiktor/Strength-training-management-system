@@ -11,5 +11,6 @@ import { ExerciseModule } from 'src/exercise/exercise.module';
   imports: [TypeOrmModule.forFeature([TrainingPlan]), AuthorizationModule, UserModule, ExerciseModule],
   controllers: [TrainingPlanController],
   providers: [TrainingPlanService],
+  exports: [TrainingPlanService]
 })
 export class TrainingPlanModule {}

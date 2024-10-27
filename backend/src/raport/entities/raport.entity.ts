@@ -19,7 +19,6 @@ export class Raport{
         type: 'timestamp',
         default: () => 'CURRENT_TIMESTAMP',
     })
-
     @IsDate()
     dateCreated: Date;
 
@@ -31,24 +30,24 @@ export class Raport{
     @JoinColumn({ name: 'author_id' })
     author: User;
 
-    @Column()
+    @Column('float')
     weight: number;
 
-    @Column()
+    @Column('float')
     chestCircuit: number;
     
-    @Column()
+    @Column('float')
     bicepsCircuit: number;
     
-    @Column()
+    @Column('float')
     thighCircuit: number;
     
-    @Column()
+    @Column('float')
     waistCircuit: number;
     
-    @Column()
+    @Column('float')
     calfCircuit: number;
 
-    @Column("int", { array: true })
-    loads: number[];
+    @Column({ type: 'jsonb', nullable: true })
+    loads: Record<string, number>;
 }

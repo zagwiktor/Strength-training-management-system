@@ -1,34 +1,43 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, UsePipes, ValidationPipe, Req, Query } from '@nestjs/common';
 import { RaportService } from './raport.service';
 import { CreateRaportDto } from './dto/create-raport.dto';
 import { UpdateRaportDto } from './dto/update-raport.dto';
+import { AuthGuard } from 'src/authorization/auth.guard';
 
-@Controller('raport')
+@Controller('raports')
+@UseGuards(AuthGuard)
 export class RaportController {
   constructor(private readonly raportService: RaportService) {}
 
-  @Post()
-  create(@Body() createRaportDto: CreateRaportDto) {
-    return this.raportService.create(createRaportDto);
+  @Post('create')
+  @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: false }))
+  create(@Body() createRaportDto: CreateRaportDto, @Req() request) {
+    const userId = request.decodedData.sub;
+    return this.raportService.create(createRaportDto, userId);
   }
 
-  @Get()
-  findAll() {
-    return this.raportService.findAll();
+  @Get('get')
+  findAll(@Query('trainingPlanId') trainingPlanId: number, @Req() request) {
+    const userId = request.decodedData.sub;
+    return this.raportService.findAll(userId, trainingPlanId);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.raportService.findOne(+id);
+  @Get('get/:id')
+  findOne(@Param('id') id: string, @Req() request) {
+    const userId = request.decodedData.sub;
+    return this.raportService.findOne(+id, userId);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateRaportDto: UpdateRaportDto) {
-    return this.raportService.update(+id, updateRaportDto);
+  @Patch('update/:id')
+  @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: false }))
+  update(@Param('id') id: string, @Body() updateRaportDto: UpdateRaportDto, @Req() request) {
+    const userId = request.decodedData.sub;
+    return this.raportService.update(+id, updateRaportDto, userId);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.raportService.remove(+id);
+  @Delete('delete/:id')
+  remove(@Param('id') id: string, @Req() request) {
+    const userId = request.decodedData.sub;
+    return this.raportService.remove(+id, userId);
   }
 }

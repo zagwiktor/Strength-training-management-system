@@ -56,7 +56,11 @@ export class ExerciseCategoryService {
 
   async update(id: number, updateExerciseCategoryDto: UpdateExerciseCategoryDto, userId: number) {
     await this.findOne(id, userId);
-    return await this.categoryRepository.update({id}, updateExerciseCategoryDto);
+    const updateResult = await this.categoryRepository.update({id}, updateExerciseCategoryDto);
+    if(updateResult.affected === 0){
+      throw new NotFoundException(`Categoiry with id ${id} not found`);
+    }
+    return await this.findOne(id, userId);;
   }
   
   async remove(id: number, userId: number) {
