@@ -10,7 +10,6 @@ export class TrainingPlanController {
   constructor(private readonly trainingPlanService: TrainingPlanService) {}
 
   @Post('create')
-  @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: false }))
   create(@Body() createTrainingPlanDto: CreateTrainingPlanDto, @Req() request) {
     const userId = request.decodedData.sub;
     return this.trainingPlanService.create(createTrainingPlanDto, userId);
@@ -29,7 +28,6 @@ export class TrainingPlanController {
   }
 
   @Patch('update/:id')
-  @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: false }))
   update(@Param('id') id: string, @Body() updateTrainingPlanDto: UpdateTrainingPlanDto, @Req() request) {
     const userId = request.decodedData.sub;
     return this.trainingPlanService.update(+id, updateTrainingPlanDto, userId);

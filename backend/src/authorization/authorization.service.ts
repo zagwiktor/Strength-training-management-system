@@ -6,13 +6,13 @@ import { Repository } from 'typeorm';
 import { UserService } from 'src/user/user.service';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
+import { Response } from 'express';
 
 @Injectable()
 export class AuthorizationService {
 constructor(
     private usersService: UserService,
     private jwtService: JwtService,
-    @InjectRepository(User) private userRepository: Repository<User>,
 ) {}
 
     validateToken(token: string) {
@@ -21,20 +21,20 @@ constructor(
         });
     }
 
-    async signIn(email: string, pass: string,): Promise<{access_token: string}> {
-        const user = await this.usersService.findOne(email);
-        const match = await bcrypt.compare(pass, user?.password);
-
-        if (!match) {
-          throw new UnauthorizedException('Invalid credentials!');
-        }
-        const payload = { sub: user.id, username: user.email };
-        return {
-            access_token: await this.jwtService.signAsync(payload),
-        };
+    async signIn(email: string, pass: string){
+      const user = await this.usersService.findOne(email);
+      if (!user) {
+        throw new UnauthorizedException('User not found!');
+      }
+      const match = await bcrypt.compare(pass, user?.password);
+      if (!match) {
+        throw new UnauthorizedException('Invalid credentials!');
+      }
+      const payload = { sub: user.id, username: user.email };
+      return await this.jwtService.signAsync(payload);
     }
 
     async singUp(createUserDto: CreateUserDto): Promise<User> {
         return await this.usersService.create(createUserDto);
-      }
+    }
 }

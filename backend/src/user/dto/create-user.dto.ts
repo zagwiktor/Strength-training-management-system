@@ -1,4 +1,4 @@
-import { IsEmail, IsNotEmpty, IsString, IsNumber, Length, Matches } from "class-validator";
+import { IsEmail, IsNotEmpty, IsString, IsNumber, Length, Matches, IsStrongPassword, Min } from "class-validator";
 import { Unique } from "typeorm";
 
 export class CreateUserDto {
@@ -14,13 +14,13 @@ export class CreateUserDto {
     surname: string;
 
     @IsString()
-    @Matches(
-    /(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}/,
-        {
-          message:
-            'Password must be at least 8 characters long and include one uppercase letter, one lowercase letter, one number, and one special character.',
-        },
-    )
+    @IsStrongPassword({
+        minLength: 12,
+        minUppercase: 1,
+        minNumbers: 1,
+        minSymbols: 1,
+        minLowercase: 1
+    })
     password: string;
 
     @IsEmail()
@@ -30,14 +30,17 @@ export class CreateUserDto {
 
     @IsNumber()
     @IsNotEmpty()
+    @Min(0, { message: 'Weight must be a positive number' })
     weight: number;
 
     @IsNumber()
     @IsNotEmpty()
+    @Min(0, { message: 'Height must be a positive number' })
     height: number;
 
     @IsNumber()
     @IsNotEmpty()
+    @Min(0, { message: 'Age must be a positive number' })
     age: number;
 
     @IsString()

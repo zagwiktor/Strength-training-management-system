@@ -10,7 +10,6 @@ export class RaportController {
   constructor(private readonly raportService: RaportService) {}
 
   @Post('create')
-  @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: false }))
   create(@Body() createRaportDto: CreateRaportDto, @Req() request) {
     const userId = request.decodedData.sub;
     return this.raportService.create(createRaportDto, userId);
@@ -29,7 +28,6 @@ export class RaportController {
   }
 
   @Patch('update/:id')
-  @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: false }))
   update(@Param('id') id: string, @Body() updateRaportDto: UpdateRaportDto, @Req() request) {
     const userId = request.decodedData.sub;
     return this.raportService.update(+id, updateRaportDto, userId);

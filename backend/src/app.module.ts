@@ -10,6 +10,9 @@ import { ExerciseCategoryModule } from './exercise-category/exercise-category.mo
 import { AuthorizationModule } from './authorization/authorization.module';
 import { DietModule } from './diet/diet.module';
 import { TrainingPlanModule } from './training-plan/training-plan.module';
+import { RemovePasswordInterceptor } from './interceptors/remove-password/remove-password.interceptor';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { TransformResponseInterceptor } from './interceptors/transform-response/tranform-response.interceptor';
 
 @Module({
   imports: [
@@ -26,6 +29,15 @@ import { TrainingPlanModule } from './training-plan/training-plan.module';
   TrainingPlanModule
 ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, 
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: RemovePasswordInterceptor
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: TransformResponseInterceptor
+    },
+  ],
 })
 export class AppModule {}

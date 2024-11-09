@@ -10,7 +10,6 @@ export class ExerciseCategoryController {
   constructor(private readonly exerciseCategoryService: ExerciseCategoryService) {}
 
   @Post('create')
-  @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: false }))
   create(@Body() createExerciseCategoryDto: CreateExerciseCategoryDto, @Req() request) {
     const userId = request.decodedData.sub;
     return this.exerciseCategoryService.create(createExerciseCategoryDto, userId);
@@ -29,7 +28,6 @@ export class ExerciseCategoryController {
   }
 
   @Patch('update/:id')
-  @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: false }))
   update(@Param('id') id: string, @Body() updateExerciseCategoryDto: UpdateExerciseCategoryDto, @Req() request) {
     const userId = request.decodedData.sub;
     return this.exerciseCategoryService.update(+id, updateExerciseCategoryDto, userId);

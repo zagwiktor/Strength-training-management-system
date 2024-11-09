@@ -1,7 +1,10 @@
 'use client';
-import { StyledBox, StyledHr } from "./StyledComponents";
+import { StyledBox, StyledHr } from "./styled-components";
+import { Button } from '@mui/material';
+import { useRouter } from "next/navigation";
 
 const WelcomeBox: React.FC = () => {
+    const router = useRouter();
     return (
         <StyledBox>
             <h3>Welcome In Strength Training Management System!</h3>
@@ -18,7 +21,12 @@ const WelcomeBox: React.FC = () => {
             <p>
                 Join and take the next step in achieving your fitness goals!
             </p>
+            <div style={{padding: '20px'}}>
+                <Button variant='outlined' style={{marginRight: '50px'}} onClick={() => {router.push('/login')}}>Login</Button> 
+                <Button variant='outlined'style={{marginLeft: '50px'}} onClick={() => {router.push('/register')}}>Register</Button>
+            </div>
         </StyledBox>
+        
     );
 }
 

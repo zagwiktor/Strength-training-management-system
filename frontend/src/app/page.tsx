@@ -1,4 +1,4 @@
-import WelcomeBox from "./_components/WelcomeBox";
+import WelcomeBox from "./_components/welcome-box";
 
 
 const Home: React.FC = () => {
