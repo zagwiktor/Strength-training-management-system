@@ -1,10 +1,10 @@
 
 import { SubmitHandler, useForm } from 'react-hook-form';
-import {StyledBox} from './styled-components'
 import { Box, FormControl, FormGroup, TextField, Button } from '@mui/material';
-import axios from 'axios'
+import axios, { AxiosError, AxiosResponse } from 'axios'
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { StyledBoxShadow } from '@/app/_components/styled-components';
 
 
 type LoginDataForm = {
@@ -13,7 +13,7 @@ type LoginDataForm = {
 }
 const apiClient = axios.create({
     baseURL: 'http://localhost:3000/auth',
-    timeout: 1000,
+    withCredentials: true
 });
 
 const LoginForm = () => {
@@ -25,9 +25,9 @@ const LoginForm = () => {
     
     const onSubmit:SubmitHandler<LoginDataForm> = async (data: LoginDataForm) => {
         setInfo(null);
-        await apiClient.post('/login', data).then(response => {
+        await apiClient.post('/login', data).then((response: AxiosResponse) => {
             router.push('/dashboard')
-        }).catch(error => {
+        }).catch((error: AxiosError) => {
             setInfo('Invalid credentials!');
         })
     }
@@ -39,7 +39,7 @@ const LoginForm = () => {
       }, [createdUser]);
     
     return (
-        <StyledBox>
+        <StyledBoxShadow>
             <form onSubmit={handleSubmit(onSubmit)}>
             <FormControl>
                 <FormGroup sx={{ gap: '16px' }}>
@@ -70,7 +70,7 @@ const LoginForm = () => {
                 </FormGroup>
             </FormControl>
             </form>
-        </StyledBox>
+        </StyledBoxShadow>
     )
 }
 

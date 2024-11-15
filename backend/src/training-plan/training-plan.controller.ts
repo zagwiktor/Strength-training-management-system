@@ -27,6 +27,12 @@ export class TrainingPlanController {
     return this.trainingPlanService.findOne(+id, userId);
   }
 
+  @Get('getMainPlan')
+  getMainPlan(@Req() request) {
+    const userId = request.decodedData.sub;
+    return this.trainingPlanService.getMainPlan(userId);
+  }
+
   @Patch('update/:id')
   update(@Param('id') id: string, @Body() updateTrainingPlanDto: UpdateTrainingPlanDto, @Req() request) {
     const userId = request.decodedData.sub;

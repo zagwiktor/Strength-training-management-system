@@ -14,7 +14,6 @@ export class TrainingPlan {
     @JoinColumn({ name: 'author_id' })
     author: User;
 
-
     @ManyToMany(() => Exercise, (exercises) => exercises.traningPlans, { onDelete: 'CASCADE' })
     exercises: Exercise[];
 
@@ -32,4 +31,7 @@ export class TrainingPlan {
 
     @OneToMany(() => Raport,(raports)=>raports.trainingPlan)
     raports: Raport[];
+
+    @Column()
+    mainPlan: boolean;
 }

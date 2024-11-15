@@ -26,6 +26,13 @@ export class TrainingPlanService {
     newTrainingPlan.description = createTrainingPlanDto.description;
     newTrainingPlan.name = createTrainingPlanDto.name;
     newTrainingPlan.exercises = exercises;
+    if (createTrainingPlanDto.mainPlan) {
+      const mainPlan = await this.getMainPlan(userId);
+      if (mainPlan) {
+          await this.traningPlanRepository.update({ id: mainPlan.id }, { mainPlan: false });
+      }
+    }
+    newTrainingPlan.mainPlan = createTrainingPlanDto.mainPlan ?? false;
     return await this.traningPlanRepository.save(newTrainingPlan);
   }
 
@@ -34,6 +41,13 @@ export class TrainingPlanService {
       where: {author: {id: userId}},
       relations: ['exercises']});
     return traningPlans;
+  }
+
+  async getMainPlan(userId: number) {
+    const mainTrainingPlan = await this.traningPlanRepository.findOne({where: 
+      {author: {id: userId}, mainPlan: true},
+      relations: ['exercises']});
+    return mainTrainingPlan;
   }
 
   async findOne(id: number, userId: number) {
@@ -48,12 +62,19 @@ export class TrainingPlanService {
 
   async update(id: number, updateTrainingPlanDto: UpdateTrainingPlanDto, userId: number) {
     await this.findOne(id, userId);
-    const {exercises, ...rest} = updateTrainingPlanDto;
+    const {exercises, mainPlan,...rest} = updateTrainingPlanDto;
     let updateData: Partial<TrainingPlan> = { ...rest };
     if(exercises && exercises.length > 0){
       const exercisesEntities = await this.exerciseService.findByIds(exercises);
       updateData.exercises = exercisesEntities;
     };
+    if (mainPlan) {
+      const currentMainPlan = await this.getMainPlan(userId);
+      if (currentMainPlan && currentMainPlan.id !== id) {
+          await this.traningPlanRepository.update({ id: currentMainPlan.id }, { mainPlan: false });
+      }
+    }
+    updateData.mainPlan = mainPlan ?? false;
     const updateResult = await this.traningPlanRepository.update({ id }, updateData);
     if (updateResult.affected === 0) {
       throw new NotFoundException(`Training plan with id ${id} not found`);

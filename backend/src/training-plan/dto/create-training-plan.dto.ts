@@ -1,4 +1,4 @@
-import { IsArray, IsNotEmpty, IsString, Length } from "class-validator";
+import { IsArray, IsBoolean, IsNotEmpty, IsString, Length } from "class-validator";
 
 export class CreateTrainingPlanDto {
 
@@ -12,7 +12,13 @@ export class CreateTrainingPlanDto {
     @Length(2, 100, { message: 'Description must be between 2 and 100 characters long.' })
     description: string;
 
+
     @IsArray()
     @IsNotEmpty({ each: true })
     exercises: number[];
+
+
+    @IsBoolean()
+    @IsNotEmpty()
+    mainPlan: boolean;
 }

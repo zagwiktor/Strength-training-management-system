@@ -37,4 +37,5 @@ constructor(
     async singUp(createUserDto: CreateUserDto): Promise<User> {
         return await this.usersService.create(createUserDto);
     }
+
 }

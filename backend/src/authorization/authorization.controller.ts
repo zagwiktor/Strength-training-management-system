@@ -16,8 +16,9 @@ export class AuthorizationController {
     const access_token  = await this.authorizationService.signIn(signInDto.email, signInDto.password);
     response.cookie('jwt', access_token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict', 
+      sameSite:'lax',
+      secure: false,
+      path: '/', 
       maxAge: 24 * 60 * 60 * 1000
     });
     return response.send({ message: 'Logged in successfully' });
@@ -25,7 +26,20 @@ export class AuthorizationController {
 
   @HttpCode(HttpStatus.OK)
   @Post('register')
-  signUp(@Body() signUpDto: CreateUserDto) {
-    return this.authorizationService.singUp(signUpDto);
+  async signUp(@Body() signUpDto: CreateUserDto) {
+    return await this.authorizationService.singUp(signUpDto);
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Post('logout')
+  async logout(@Res() response: Response) {
+    response.cookie('jwt', '', {
+      httpOnly: true,
+      sameSite:'lax',
+      secure: false,
+      path: '/', 
+      maxAge: 0
+    });
+    return response.send({message: 'Logged out successfully'});
   }
 }

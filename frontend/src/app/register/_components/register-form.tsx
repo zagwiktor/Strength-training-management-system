@@ -1,14 +1,15 @@
-import axios from "axios";
+import axios, { AxiosError, AxiosResponse } from "axios";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { StyledBox } from "./styled-components";
 import { Box, Button, FormControl, FormGroup, InputAdornment, MenuItem, TextField } from "@mui/material";
+import { StyledBoxShadow } from "@/app/_components/styled-components";
 
 
 const apiClient = axios.create({
     baseURL: 'http://localhost:3000/auth',
-    timeout: 1000,
+    withCredentials: true
   });
 
 type RegisterDataForm = {
@@ -31,7 +32,7 @@ const RegisterForm = () => {
         data.height = parseFloat(data.height as unknown as string);
         data.weight = parseFloat(data.weight as unknown as string);
         data.age = parseFloat(data.age as unknown as string);
-        await apiClient.post('/register', data).then((response) => {
+        await apiClient.post('/register', data).then((response: AxiosResponse) => {
             router.push(`/login?user=${data.email}`);
         }).catch((errors) => {
             const newInfo = errors.response.data.message === 'Email already exists'
@@ -41,7 +42,7 @@ const RegisterForm = () => {
         });
     }
     return (
-        <StyledBox>
+        <StyledBoxShadow>
             <form onSubmit={handleSubmit(onSubmit)}>
                 <FormControl>
                     <FormGroup sx={{ gap: '16px' }}>
@@ -148,7 +149,7 @@ const RegisterForm = () => {
                     </FormGroup>
                 </FormControl>
             </form>
-        </StyledBox>
+        </StyledBoxShadow>
     )
 };
 
