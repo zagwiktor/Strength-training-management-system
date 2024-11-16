@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateTrainingPlanDto } from './dto/create-training-plan.dto';
 import { UpdateTrainingPlanDto } from './dto/update-training-plan.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -6,6 +6,11 @@ import { UserService } from 'src/user/user.service';
 import { TrainingPlan } from './entities/training-plan.entity';
 import { Repository } from 'typeorm';
 import { ExerciseService } from 'src/exercise/exercise.service';
+
+interface orderedExercises {
+  order: number,
+  pkOfExercise: number
+}
 
 @Injectable()
 export class TrainingPlanService {
@@ -26,6 +31,10 @@ export class TrainingPlanService {
     newTrainingPlan.description = createTrainingPlanDto.description;
     newTrainingPlan.name = createTrainingPlanDto.name;
     newTrainingPlan.exercises = exercises;
+    newTrainingPlan.orderedExercises = exercises.map((value, index) => ({
+      order: index,
+      pkOfExercise: value.id,
+    }));
     if (createTrainingPlanDto.mainPlan) {
       const mainPlan = await this.getMainPlan(userId);
       if (mainPlan) {
@@ -60,26 +69,54 @@ export class TrainingPlanService {
     return traningPlan;
   }
 
-  async update(id: number, updateTrainingPlanDto: UpdateTrainingPlanDto, userId: number) {
-    await this.findOne(id, userId);
-    const {exercises, mainPlan,...rest} = updateTrainingPlanDto;
-    let updateData: Partial<TrainingPlan> = { ...rest };
-    if(exercises && exercises.length > 0){
+  async update(id: number, updateTrainingPlanDto: UpdateTrainingPlanDto, userId: number, orderedExercises?: orderedExercises[]) {
+    const existingPlan = await this.traningPlanRepository.findOne({
+      where: { id },
+      relations: ['exercises'],
+    });
+  
+    if (!existingPlan) {
+      throw new NotFoundException(`Training plan with id ${id} not found`);
+    }
+  
+    const { exercises, mainPlan, ...rest } = updateTrainingPlanDto;
+  
+    if (exercises && exercises.length > 0) {
       const exercisesEntities = await this.exerciseService.findByIds(exercises);
-      updateData.exercises = exercisesEntities;
-    };
+      existingPlan.exercises = exercisesEntities;
+    }
+  
     if (mainPlan) {
       const currentMainPlan = await this.getMainPlan(userId);
       if (currentMainPlan && currentMainPlan.id !== id) {
-          await this.traningPlanRepository.update({ id: currentMainPlan.id }, { mainPlan: false });
+        await this.traningPlanRepository.update({ id: currentMainPlan.id }, { mainPlan: false });
       }
     }
-    updateData.mainPlan = mainPlan ?? false;
-    const updateResult = await this.traningPlanRepository.update({ id }, updateData);
-    if (updateResult.affected === 0) {
-      throw new NotFoundException(`Training plan with id ${id} not found`);
+  
+    if (orderedExercises) {
+      if (orderedExercises.length !== existingPlan.exercises.length) {
+        throw new BadRequestException(
+          'The number of orderedExercises does not match the number of exercises in the training plan.'
+        );
+      }
+      existingPlan.orderedExercises = orderedExercises;
+    } else {
+      if (existingPlan.exercises) {
+        existingPlan.orderedExercises = existingPlan.exercises.map((value, index) => ({
+          order: index,
+          pkOfExercise: value.id,
+        }));
+      } else {
+        throw new BadRequestException(
+          'Exercises are missing. Unable to create orderedExercises.'
+        );
+      }
     }
-    return await this.findOne(id, userId);
+  
+    existingPlan.mainPlan = mainPlan ?? false;
+    Object.assign(existingPlan, rest);
+  
+    return await this.traningPlanRepository.save(existingPlan);
   }
 
   async remove(id: number, userId: number) {
