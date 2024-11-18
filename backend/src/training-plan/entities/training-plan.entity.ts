@@ -18,7 +18,7 @@ export class TrainingPlan {
     exercises: Exercise[];
 
     
-    @Column({ type: 'jsonb', nullable: true })
+    @Column({ type: 'jsonb'})
     orderedExercises: { order: number; pkOfExercise: number }[];
     
     @Column()

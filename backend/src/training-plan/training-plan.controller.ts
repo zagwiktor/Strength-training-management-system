@@ -40,7 +40,6 @@ export class TrainingPlanController {
     @Req() request
   ) {
     const userId = request.decodedData.sub;
-    console.log(updateTrainingPlanDto.orderedExercisesUpdated);
     return this.trainingPlanService.update(+id, updateTrainingPlanDto, userId, updateTrainingPlanDto.orderedExercisesUpdated );
   }
 

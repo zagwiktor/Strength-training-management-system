@@ -21,9 +21,10 @@ export const StyledBoxShadow = styled(Box)(() => ({
 }));
 
 export const StyledHr = styled.hr(() => ({
-    width: '100%',                    
-    height: '1px',
-    border: 'none', 
-    backgroundColor: '#888888',        
-    margin: '20px 0', 
+  width: '100%',                    
+  height: '1px',
+  border: 'none', 
+  backgroundColor: '#888888',        
+  margin: '20px 0', 
 }));
+

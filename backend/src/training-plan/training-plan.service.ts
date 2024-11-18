@@ -86,11 +86,18 @@ export class TrainingPlanService {
       existingPlan.exercises = exercisesEntities;
     }
   
-    if (mainPlan) {
+
+    if (mainPlan === true) { 
       const currentMainPlan = await this.getMainPlan(userId);
       if (currentMainPlan && currentMainPlan.id !== id) {
+
         await this.traningPlanRepository.update({ id: currentMainPlan.id }, { mainPlan: false });
       }
+      existingPlan.mainPlan = true;
+    } else if (mainPlan === undefined) {
+      existingPlan.mainPlan = existingPlan.mainPlan;
+    } else {
+      existingPlan.mainPlan = false;
     }
   
     if (orderedExercises) {
@@ -113,9 +120,7 @@ export class TrainingPlanService {
       }
     }
   
-    existingPlan.mainPlan = mainPlan ?? false;
     Object.assign(existingPlan, rest);
-  
     return await this.traningPlanRepository.save(existingPlan);
   }
 
