@@ -64,13 +64,7 @@ export default function NavBar() {
               <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
                 Strength training management system
               </Typography>
-              <Box sx={{ flexGrow: 0, display: { xs: 'none', md: 'flex' } }}>
-                <Divider orientation="vertical" variant="middle" flexItem />
-                <Button
-                    sx={{ my: 2, color: 'white', display: 'block' }}
-                >
-                    Training Plans
-                </Button>  
+              <Box sx={{ flexGrow: 0, gap: "20px", display: { xs: 'none', md: 'flex' } }}> 
                 <Divider orientation="vertical" variant="middle" flexItem />
                 <Button
                     sx={{ my: 2, color: 'white', display: 'block' }}
@@ -91,7 +85,7 @@ export default function NavBar() {
                 </Button> 
                 <Divider orientation="vertical" variant="middle" flexItem />
               </Box>
-              <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
+              <Box sx={{ display: { xs: 'none', md: 'flex' }, paddingLeft: "10px"}}>
                 <IconButton
                     size="large"
                     edge="end"
@@ -101,8 +95,8 @@ export default function NavBar() {
                     onClick={handleProfileMenuOpen}
                     color="inherit"
                 >
-              <AccountCircle />
-            </IconButton>
+                <AccountCircle />
+              </IconButton>
             
               </Box>
             </Toolbar>

@@ -13,7 +13,8 @@ export const StyledBoxShadow = styled(Box)(() => ({
     borderRadius: "25px",
     border: "1px",
     padding: "5px 70px 30px 70px",
-    boxShadow: "5px 10px 18px #888888"
+    boxShadow: "5px 10px 18px #888888",
+    minWidth: "300px"
 }));
 
 export const IconArrowBox = styled(Box)(() => ({
@@ -29,5 +30,20 @@ export const IconArrowBox = styled(Box)(() => ({
       backgroundColor: '#f2f2f2',
       cursor: 'pointer', 
     },
-  }));
+}));
 
+export const FirstPlanExMainBox = styled(Box)(() => ({
+    display: 'flex',
+    justifyContent: 'space-between',
+    gap: '10px',
+}));
+
+
+
+export const FirstPlanExColumnBox = styled(Box)(() => ({
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "space-between",
+    alignItems: "center",
+    minWidth: "300px"
+}));
