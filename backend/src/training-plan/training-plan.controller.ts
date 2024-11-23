@@ -40,7 +40,7 @@ export class TrainingPlanController {
     @Req() request
   ) {
     const userId = request.decodedData.sub;
-    return this.trainingPlanService.update(+id, updateTrainingPlanDto, userId, updateTrainingPlanDto.orderedExercisesUpdated );
+    return this.trainingPlanService.update(+id, updateTrainingPlanDto, userId);
   }
 
   @Delete('delete/:id')

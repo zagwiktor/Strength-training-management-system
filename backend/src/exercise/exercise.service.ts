@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateExerciseDto } from './dto/create-exercise.dto';
 import { UpdateExerciseDto } from './dto/update-exercise.dto';
 import { UserService } from 'src/user/user.service';
@@ -20,6 +20,17 @@ export class ExerciseService {
     if (!user) {
       throw new NotFoundException('User not found');
     }
+    if (createExerciseDto.tempo) {
+      if (!Array.isArray(createExerciseDto.tempo)) {
+        throw new BadRequestException('Tempo must be an array.');
+      }
+      if (createExerciseDto.tempo.length !== 4) {
+        throw new BadRequestException('Tempo must contain exactly 4 elements.');
+      }
+      if (!createExerciseDto.tempo.every(value => typeof value === 'number')) {
+        throw new BadRequestException('Tempo must be an array of numbers.');
+      }
+    }
     const categories = await this.categoryService.findByIds(createExerciseDto.categories)
     const newExercise = new Exercise();
     newExercise.name = createExerciseDto.name;
@@ -30,7 +41,9 @@ export class ExerciseService {
     newExercise.sets = createExerciseDto.sets;
     newExercise.tempo = createExerciseDto.tempo;
     newExercise.load = createExerciseDto.load;
-    return await this.exerciseRepository.save(newExercise);
+    const exerciseRes = await this.exerciseRepository.save(newExercise);
+    const {author, ...exercise} = exerciseRes;
+    return exercise;
   }
 
   async findByIds(exerciseIds: number[]): Promise<Exercise[]> {
@@ -64,7 +77,7 @@ export class ExerciseService {
       where: {id: id, author: {id: userId}},
       relations: ['categories']});
     if(!exercise){
-      throw new NotFoundException('Exercise not found or you are not the author of this category!');
+      throw new NotFoundException('Exercise not found or you are not the author of this exercise!');
     }
     return exercise;
   }

@@ -12,7 +12,11 @@ async function bootstrap() {
     allowedHeaders: 'Content-Type, Authorization, Accept, X-Requested-With',
     credentials: true,
   });
-  app.useGlobalPipes(new ValidationPipe({whitelist: true}));
+  app.useGlobalPipes(new ValidationPipe({
+    forbidNonWhitelisted: true,
+    transform: true,
+    whitelist: true 
+  }));
   app.use(cookieParser());
   await app.listen(3000);
 }

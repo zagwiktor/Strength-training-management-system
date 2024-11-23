@@ -1,6 +1,5 @@
-import { IsArray, IsNotEmpty, IsNumber, IsString, Length, Min } from "class-validator";
-import { ExerciseCategory } from "src/exercise-category/entities/exercise-category.entity";
-import { IsTempoValidation } from "./validator";
+import { IsArray, IsNotEmpty, IsNumber, IsOptional, IsString, Length, Min } from "class-validator";
+
 
 export class CreateExerciseDto {
 
@@ -10,9 +9,9 @@ export class CreateExerciseDto {
     name: string;
 
     @IsString()
-    @IsNotEmpty()
+    @IsOptional()
     @Length(2, 100, { message: 'Description must be between 2 and 100 characters long.' })
-    description: string;
+    description?: string;
 
     @IsNumber()
     @IsNotEmpty()
@@ -24,12 +23,13 @@ export class CreateExerciseDto {
     @Min(1, { message: 'Repetitions must be greater than 0.' })
     reps: number;
 
-    @IsTempoValidation({ message: 'Tempo must be an array of four numbers.' })
-    tempo: [eccentricPhase: number, ePause: number, concentricPhases: number, cPause: number];
+    @IsOptional()
+    tempo?: [eccentricPhase: number, ePause: number, concentricPhases: number, cPause: number];
 
     @IsNumber()
     @Min(1, { message: 'Load must be greater than 0.' })
-    load: number;
+    @IsOptional()
+    load?: number;
 
     @IsArray()
     categories: number[];

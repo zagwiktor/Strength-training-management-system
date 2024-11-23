@@ -58,8 +58,8 @@ const Dashboard = () => {
 
     const getMainPlan = async () => {
         await apiClient.get('training-plan/getMainPlan').then((response: AxiosResponse<TrainingPlanResponse>) => {
-            const trainingPlan = response.data.data;
-            if(Array.isArray(trainingPlan) && trainingPlan.length > 0) {
+            const trainingPlan = response.data.data;          
+            if(trainingPlan && Array.isArray(trainingPlan.orderedExercises)) {
                 setMainTrainingPlan(trainingPlan);
                 const sortedExercises = trainingPlan.orderedExercises
                 .map(orderItem => {

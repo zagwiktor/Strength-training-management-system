@@ -5,6 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
+import { plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class UserService {
@@ -27,7 +28,8 @@ export class UserService {
     user.weight = createUserDto.weight;
     user.height = createUserDto.height;
     user.age = createUserDto.age;
-    return await this.userRepository.save(user);
+    const savedUser = await this.userRepository.save(user);
+    return plainToInstance(User, savedUser);
   }
 
   findAll() {

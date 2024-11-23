@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/user/entities/user.entity';
@@ -11,6 +11,7 @@ import { Response } from 'express';
 @Injectable()
 export class AuthorizationService {
 constructor(
+    @Inject(forwardRef(() => UserService))
     private usersService: UserService,
     private jwtService: JwtService,
 ) {}

@@ -15,14 +15,11 @@ export class CreateTrainingPlanDto {
 
     @IsArray()
     @IsNotEmpty({ each: true })
-    exercises: number[];
+    trainingUnitsIds: number[];
 
 
     @IsBoolean()
     @IsNotEmpty()
     mainPlan: boolean;
 
-    @IsOptional()
-    @IsArray()
-    orderedExercisesUpdated?: { order: number, pkOfExercise: number }[];
 }

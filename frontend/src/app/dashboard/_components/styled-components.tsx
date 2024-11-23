@@ -47,3 +47,12 @@ export const FirstPlanExColumnBox = styled(Box)(() => ({
     alignItems: "center",
     minWidth: "300px"
 }));
+
+export const YourExBox = styled(Box)(() => ({
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "space-between",
+    alignItems: "center",
+    minWidth: "300px",
+    maxHeight: "500px"
+}));

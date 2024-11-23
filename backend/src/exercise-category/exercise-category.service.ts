@@ -21,7 +21,9 @@ export class ExerciseCategoryService {
     const newCategory = new ExerciseCategory();
     newCategory.author = user;
     newCategory.name = createExerciseCategoryDto.name;
-    return await this.categoryRepository.save(newCategory);
+    const categoryRes = await this.categoryRepository.save(newCategory);
+    const {author, ...category} = categoryRes;
+    return category;
   }
 
   async findAll(userId: number) {

@@ -1,5 +1,6 @@
 import { Exercise } from "src/exercise/entities/exercise.entity";
 import { Raport } from "src/raport/entities/raport.entity";
+import { TrainingUnit } from "src/training-unit/entities/training-unit.entity";
 import { User } from "src/user/entities/user.entity";
 import { Column, Entity, JoinColumn, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn, Unique } from "typeorm";
 
@@ -14,12 +15,8 @@ export class TrainingPlan {
     @JoinColumn({ name: 'author_id' })
     author: User;
 
-    @ManyToMany(() => Exercise, (exercises) => exercises.traningPlans, { onDelete: 'CASCADE' })
-    exercises: Exercise[];
-
-    
-    @Column({ type: 'jsonb'})
-    orderedExercises: { order: number; pkOfExercise: number }[];
+    @OneToMany(() => TrainingUnit, (trainingUnit) => trainingUnit.trainingPlan, {onDelete: 'CASCADE'})
+    trainingUnits: TrainingUnit[];
     
     @Column()
     name: string;

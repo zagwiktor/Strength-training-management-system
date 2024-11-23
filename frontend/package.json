@@ -13,6 +13,7 @@
     "@emotion/styled": "^11.13.0",
     "@mui/icons-material": "^6.1.6",
     "@mui/material": "^6.1.6",
+    "@nestjs/mapped-types": "*",
     "@types/react-transition-group": "^4.4.11",
     "axios": "^1.7.7",
     "next": "15.0.1",

@@ -5,10 +5,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { TrainingPlan } from './entities/training-plan.entity';
 import { AuthorizationModule } from 'src/authorization/authorization.module';
 import { UserModule } from 'src/user/user.module';
-import { ExerciseModule } from 'src/exercise/exercise.module';
+import { TrainingUnitModule } from 'src/training-unit/training-unit.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([TrainingPlan]), AuthorizationModule, UserModule, ExerciseModule],
+  imports: [TypeOrmModule.forFeature([TrainingPlan]), AuthorizationModule, UserModule, TrainingUnitModule],
   controllers: [TrainingPlanController],
   providers: [TrainingPlanService],
   exports: [TrainingPlanService]

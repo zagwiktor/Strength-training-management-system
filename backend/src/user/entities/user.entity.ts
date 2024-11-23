@@ -5,6 +5,7 @@ import { Exercise } from "src/exercise/entities/exercise.entity";
 import { Diet } from "src/diet/entities/diet.entity";
 import { TrainingPlan } from "src/training-plan/entities/training-plan.entity";
 import { Raport } from "src/raport/entities/raport.entity";
+import { TrainingUnit } from "src/training-unit/entities/training-unit.entity";
 
 @Entity()
 export class User {
@@ -50,5 +51,8 @@ export class User {
 
     @OneToMany(() => Raport, (raport) => raport.author)
     raports: Raport[];
+
+    @OneToMany(() => TrainingUnit, (trainingUnit) => trainingUnit.author)
+    trainingUnits: TrainingUnit[];
 
 }
