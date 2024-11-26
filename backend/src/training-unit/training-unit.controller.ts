@@ -21,6 +21,12 @@ export class TrainingUnitController {
     return this.trainingUnitService.findAll(userId);
   }
 
+  @Get('findByIds')
+  findByIds(@Req() request) {
+    const userId = request.decodedData.sub;
+    return this.trainingUnitService.findByIds([4,5,6]);
+  }
+
   @Get('get/:id')
   findOne(@Param('id') id: string, @Req() request) {
     const userId = request.decodedData.sub;

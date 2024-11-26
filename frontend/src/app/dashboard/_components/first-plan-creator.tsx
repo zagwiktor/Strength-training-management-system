@@ -25,11 +25,11 @@ interface ExercisesResponse {
 interface Category {
     id: number;
     name: string;
-    exercises?: Exercise[]
+    exercises?: Exercise[];
 }
 
 interface CategoriesResponse {
-    data: Category[]
+    data: Category[];
 }
 
 interface ExerciseDataForm {

@@ -14,8 +14,7 @@ export class CreateTrainingPlanDto {
 
 
     @IsArray()
-    @IsNotEmpty({ each: true })
-    trainingUnitsIds: number[];
+    trainingUnitsIds?: number[];
 
 
     @IsBoolean()

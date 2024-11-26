@@ -6,7 +6,8 @@ export const ExerciseBox = styled(Box)(() => ({
     padding: "1px 0 1px 1px",
     border: "1px",
     marginBottom: "10px",
-    boxShadow: "3px 3px 3px #888888"
+    boxShadow: "3px 3px 3px #888888",
+    width: '95%'
 }));
 
 export const StyledBoxShadow = styled(Box)(() => ({
@@ -38,8 +39,6 @@ export const FirstPlanExMainBox = styled(Box)(() => ({
     gap: '10px',
 }));
 
-
-
 export const FirstPlanExColumnBox = styled(Box)(() => ({
     display: "flex",
     flexDirection: "column",
@@ -56,3 +55,32 @@ export const YourExBox = styled(Box)(() => ({
     minWidth: "300px",
     maxHeight: "500px"
 }));
+
+export const TrainingUnitBoxContainer = styled(Box)(() => ({
+    display: "flex",
+    flexWrap: "wrap", 
+    gap: "40px", 
+    marginBottom: "20px",
+}));
+
+
+export const TrainingUnitBox = styled(Box)(() => ({
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "space-between",
+    alignItems: "center",
+    boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+    borderRadius: "8px",
+    padding: "15px",
+    minWidth: "300px",
+    boxSizing: "border-box", 
+}));
+
+export const StyledHr = styled.hr(() => ({
+    width: '90%',                    
+    height: '1px',
+    border: 'none', 
+    backgroundColor: '#888888',        
+    margin: '5px 0 10px 0',    
+  }));
+  

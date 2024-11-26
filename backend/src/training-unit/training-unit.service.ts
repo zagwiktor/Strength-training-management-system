@@ -57,6 +57,7 @@ export class TrainingUnitService {
       where: {
         id: In(trainingUnitIds),
       },
+      relations: ['exercises']
     });
     if (trainingUnits.length !== trainingUnitIds.length) {
       throw new NotFoundException('Some training units not found');

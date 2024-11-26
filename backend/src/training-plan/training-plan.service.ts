@@ -42,21 +42,21 @@ export class TrainingPlanService {
   async findAll(userId: number) {
     const traningPlans = await this.traningPlanRepository.find({
       where: {author: {id: userId}},
-      relations: ['trainingUnits']});
+      relations: ['trainingUnits', 'trainingUnits.exercises']});
     return traningPlans;
   }
 
   async getMainPlan(userId: number) {
     const mainTrainingPlan = await this.traningPlanRepository.findOne({where: 
       {author: {id: userId}, mainPlan: true},
-      relations: ['trainingUnits']});
+      relations: ['trainingUnits', 'trainingUnits.exercises']});
     return mainTrainingPlan;
   }
 
   async findOne(id: number, userId: number) {
     const traningPlan = await this.traningPlanRepository.findOne({where: {id: id, author: {
       id: userId }}, 
-      relations: ['trainingUnits'] });
+      relations: ['trainingUnits', 'trainingUnits.exercises'] });
     if(!traningPlan){
       throw new NotFoundException('Traning plan not found or you are not the author of this plan!');
     }
@@ -66,25 +66,22 @@ export class TrainingPlanService {
   async update(id: number, updateTrainingPlanDto: UpdateTrainingPlanDto, userId: number) {
     const existingPlan = await this.traningPlanRepository.findOne({
       where: { id },
-      relations: ['trainingUnits'],
+      relations: ['trainingUnits', 'trainingUnits.exercises'],
     });
   
     if (!existingPlan) {
       throw new NotFoundException(`Training plan with id ${id} not found`);
     }
-  
     const { trainingUnitsIds, mainPlan, ...rest } = updateTrainingPlanDto;
-  
     if (trainingUnitsIds && trainingUnitsIds.length > 0) {
       const trainingUnits = await this.trainingUnitsService.findByIds(trainingUnitsIds);
       existingPlan.trainingUnits = trainingUnits;
     }
-  
     if (mainPlan === true) { 
       const currentMainPlan = await this.getMainPlan(userId);
       if (currentMainPlan && currentMainPlan.id !== id) {
-
-        await this.traningPlanRepository.update({ id: currentMainPlan.id }, { mainPlan: false });
+        currentMainPlan.mainPlan = false;
+        await this.traningPlanRepository.save(currentMainPlan);
       }
       existingPlan.mainPlan = true;
     } else if (mainPlan === undefined) {
@@ -92,7 +89,6 @@ export class TrainingPlanService {
     } else {
       existingPlan.mainPlan = false;
     }
-  
     Object.assign(existingPlan, rest);
     return await this.traningPlanRepository.save(existingPlan);
   }

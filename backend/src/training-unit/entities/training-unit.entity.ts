@@ -18,7 +18,7 @@ export class TrainingUnit {
     @Column({ nullable: true })
     description?: string; 
 
-    @ManyToOne(() => TrainingPlan, (plan) => plan.trainingUnits, { onDelete: 'CASCADE' })
+    @ManyToMany(() => TrainingPlan, (plan) => plan.trainingUnits, { onDelete: 'CASCADE' })
     @JoinColumn({ name: 'training_plan_id' })
     trainingPlan: TrainingPlan; 
 
