@@ -7,7 +7,7 @@ import FirstPlanCreator from './_components/first-plan-creator';
 import { ExerciseBox, IconArrowBox, StyledBoxShadow, TrainingUnitBox, TrainingUnitBoxContainer } from './_components/styled-components';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
-import { SortedExercises, TrainingPlan } from './types'
+import { SortedExercises, SortedExercisesTrainingUnit, TrainingPlan, TrainingUnit } from './types'
 import { StyledHr } from './_components/styled-components'
 
 const apiClient = axios.create({
@@ -15,23 +15,32 @@ const apiClient = axios.create({
   withCredentials: true,
 });
 
-
+//Zastanowić się nad One to many w training units
 
 const Dashboard = () => {
     const [mainTrainingPlan, setMainTrainingPlan] = useState<TrainingPlan>();
-    const [trainingPlans, setTrainingPlans] = useState<TrainingPlan>();
-    const [sortedExercises, setSortedExercises] = useState<SortedExercises[]>();
+    const [trainingPlans, setTrainingPlans] = useState<TrainingPlan[]>();
+    const [sortedExercisesInUnit, setSortedExercisesInUnit] = useState<SortedExercisesTrainingUnit[]>([]);
     const [expandedExercises, setExpandedExercises] = useState<Record<string, boolean>>({});
     const [selectedPlan, setSelectedPlan] = useState<TrainingPlan | null>(null);
 
     const getMainPlan = async () => {
-        await apiClient.get('training-plan/getMainPlan').then((response: AxiosResponse) => {
-            const trainingPlan = response.data;   
-            console.log(trainingPlan)       
+      await apiClient.get('training-plan/getMainPlan').then((response: AxiosResponse) => {
+        const trainingPlan = response.data;    
+        if (trainingPlan && Array.isArray(trainingPlan.trainingUnits)) {
             setMainTrainingPlan(trainingPlan);
-        }).catch((errors: AxiosError) => {
-            console.log(errors);
-        });
+            const sortedData = trainingPlan.trainingUnits.map((unit: TrainingUnit) => {
+                const sortedExercises = unit.orderedExercises
+                  .map(orderItem => {
+                      const exercise = unit.exercises.find(ex => ex.id === orderItem.pkOfExercise);
+                      return { exercise: exercise, order: orderItem.order };
+                  })
+                  .sort((a, b) => a.order - b.order);
+                return { trainingUnitId: unit.id, SortedExercises: sortedExercises };
+            });
+            setSortedExercisesInUnit(sortedData);
+        }
+      });
     }
 
     const getPlans = async () => {
@@ -67,11 +76,60 @@ const Dashboard = () => {
         }
     } 
 
+    const handleUpExercise = (trainingUnitId: number, exerciseId: number) => {
+      setSortedExercisesInUnit((prev) => {
+          return prev.map((unit) => {
+              if (unit.trainingUnitId === trainingUnitId) {
+                  const index = unit.SortedExercises.findIndex((ex) => ex.exercise.id === exerciseId);
+                  if (index > 0) {
+                      const updatedExercises = [...unit.SortedExercises];
+                      [updatedExercises[index], updatedExercises[index - 1]] = [updatedExercises[index - 1], updatedExercises[index]];
+                      updatedExercises[index].order = index;
+                      updatedExercises[index - 1].order = index - 1;
+                      updatePlanOrder(trainingUnitId, updatedExercises);
+                      return { ...unit, SortedExercises: updatedExercises };
+                  }
+              }
+              return unit;
+          });
+      });
+    };
+
+    const handleDownExercise = (trainingUnitId: number, exerciseId: number) => {
+      setSortedExercisesInUnit((prev) => {
+          return prev.map((unit) => {
+              if (unit.trainingUnitId === trainingUnitId) {
+                  const index = unit.SortedExercises.findIndex((ex) => ex.exercise.id === exerciseId);
+                  if (index >= 0 && index < unit.SortedExercises.length - 1) {
+                      const updatedExercises = [...unit.SortedExercises];
+                      [updatedExercises[index], updatedExercises[index + 1]] = [updatedExercises[index + 1], updatedExercises[index]];
+                      updatedExercises[index].order = index;
+                      updatedExercises[index + 1].order = index + 1;
+                      updatePlanOrder(trainingUnitId, updatedExercises);
+                      console.log(updatedExercises)
+                      return { ...unit, SortedExercises: updatedExercises };
+                  }
+              }
+              return unit;
+          });
+      });
+  };
+
+  const updatePlanOrder = async (trainingUnitId: number, sortedExercises: SortedExercises[]) => {
+    const data = sortedExercises.map((exercise) => ({
+        order: exercise.order,
+        pkOfExercise: exercise.exercise.id,
+    }));
+    const requestData = {"orderedExercisesUpdated": data};
+    await apiClient.patch(`training-units/update/${trainingUnitId}`, requestData);
+    console.log(`data: ${data}`)
+  };
+
     const mainTrainingPlanSelector = (
         <Box sx={{marginBottom: "20px"}}>
             <h3>Choose active training plan</h3>
             <Autocomplete
-                options={trainingPlans}
+                options={trainingPlans || []}
                 getOptionLabel={(option) => option.name} 
                 renderInput={(params) => (
                   <TextField {...params} label="Choose a training plan" variant="outlined" />
@@ -98,54 +156,66 @@ const Dashboard = () => {
                       Array.isArray(mainTrainingPlan.trainingUnits) &&
                       mainTrainingPlan.trainingUnits.length > 0 ? (
                         <TrainingUnitBoxContainer>
-                          {mainTrainingPlan.trainingUnits.map((trainingUnit, index) => (
+                          {mainTrainingPlan.trainingUnits.map((trainingUnit, unitIndex) => (
                             <TrainingUnitBox key={trainingUnit.id}>
-                              <p>{`${index + 1}. ${trainingUnit.name}`}</p>
-                              {trainingUnit.description ? <p>{trainingUnit.description}</p> : null}
+                              <p>{`${unitIndex + 1}. ${trainingUnit.name}`}</p>
+                              {trainingUnit.description && <p>{trainingUnit.description}</p>}
                               <StyledHr />
-                              {trainingUnit.exercises?.map((exercise) => {
-                                const key = `${trainingUnit.id}-${exercise.id}`;
-                                return (
-                                  <ExerciseBox key={key}>
-                                    <Box>
-                                      <Box
-                                        sx={{
-                                          display: 'flex',
-                                          justifyContent: 'space-between',
-                                          alignItems: 'center',
-                                        }}
-                                      >
-                                        <h4>{exercise.name}</h4>
-                                        <Box>
-                                          <IconArrowBox onClick={() => handleUpExercise(exercise.id)}>
-                                            <ArrowDropUpIcon />
-                                          </IconArrowBox>
-                                          <IconArrowBox onClick={() => handleDownExercise(exercise.id)}>
-                                            <ArrowDropDownIcon />
-                                          </IconArrowBox>
-                                        </Box>
-                                      </Box>
+                              {sortedExercisesInUnit
+                                .find(unit => unit.trainingUnitId === trainingUnit.id)
+                                ?.SortedExercises.map((sortedExercise, exerciseIndex) => {
+                                  const { exercise } = sortedExercise;
+                                  const key = `${trainingUnit.id}-${exercise.id}`;
+                                
+                                  return (
+                                    <ExerciseBox key={key}>
                                       <Box>
-                                        <FormControlLabel
-                                          control={
-                                            <Switch
-                                              checked={!!expandedExercises[key]}
-                                              onChange={() => handleToggle(trainingUnit.id, exercise.id)}
-                                            />
-                                          }
-                                          label="Show details"
-                                        />
+                                        <Box
+                                          sx={{
+                                            display: 'flex',
+                                            justifyContent: 'space-between',
+                                            alignItems: 'center',
+                                          }}
+                                        >
+                                          <h4>{exercise.name}</h4>
+                                          <Box>
+                                            {exerciseIndex > 0 ? (
+                                              <IconArrowBox
+                                              onClick={() => handleUpExercise(trainingUnit.id, exercise.id)}
+                                              >
+                                                <ArrowDropUpIcon />
+                                              </IconArrowBox>
+                                            ) : null}
+                                            {exerciseIndex < sortedExercisesInUnit.length - 1 ? (
+                                              <IconArrowBox
+                                              onClick={() => handleDownExercise(trainingUnit.id, exercise.id)}
+                                              >
+                                                <ArrowDropDownIcon />
+                                              </IconArrowBox>
+                                            ) : null}            
+                                          </Box>
+                                        </Box>
+                                        <Box>
+                                          <FormControlLabel
+                                            control={
+                                              <Switch
+                                                checked={!!expandedExercises[key]}
+                                                onChange={() => handleToggle(trainingUnit.id, exercise.id)}
+                                              />
+                                            }
+                                            label="Show details"
+                                          />
+                                        </Box>
+                                        <Collapse in={!!expandedExercises[key]}>
+                                          {exercise.description && <p>{exercise.description}</p>}
+                                          <p>Sets: {exercise.sets}</p>
+                                          <p>Reps: {exercise.reps}</p>
+                                          {exercise.tempo && <p>Tempo: {exercise.tempo.join('-')}</p>}
+                                        </Collapse>
                                       </Box>
-                                      <Collapse in={!!expandedExercises[key]}>
-                                        {exercise.description ? <p>{exercise.description}</p> : null}
-                                        <p>Sets: {exercise.sets}</p>
-                                        <p>Reps: {exercise.reps}</p>
-                                        {exercise.tempo ? <p>Tempo: {exercise.tempo.join('-')}</p> : null}
-                                      </Collapse>
-                                    </Box>
-                                  </ExerciseBox>
-                                );
-                              })}
+                                    </ExerciseBox>
+                                  );
+                                })}
                             </TrainingUnitBox>
                           ))}
                         </TrainingUnitBoxContainer>
