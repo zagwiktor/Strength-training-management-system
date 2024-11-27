@@ -33,29 +33,6 @@ export const IconArrowBox = styled(Box)(() => ({
     },
 }));
 
-export const FirstPlanExMainBox = styled(Box)(() => ({
-    display: 'flex',
-    justifyContent: 'space-between',
-    gap: '10px',
-}));
-
-export const FirstPlanExColumnBox = styled(Box)(() => ({
-    display: "flex",
-    flexDirection: "column",
-    justifyContent: "space-between",
-    alignItems: "center",
-    minWidth: "300px"
-}));
-
-export const YourExBox = styled(Box)(() => ({
-    display: "flex",
-    flexDirection: "column",
-    justifyContent: "space-between",
-    alignItems: "center",
-    minWidth: "300px",
-    maxHeight: "500px"
-}));
-
 export const TrainingUnitBoxContainer = styled(Box)(() => ({
     display: "flex",
     flexWrap: "wrap", 

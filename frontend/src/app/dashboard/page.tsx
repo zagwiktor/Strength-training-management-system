@@ -3,12 +3,12 @@ import axios, { AxiosError, AxiosResponse } from 'axios';
 import NavBar from '../_components/navbar';
 import React, { useEffect, useState } from 'react';
 import { Autocomplete, Box, Collapse, FormControlLabel, Switch, TextField } from '@mui/material';
-import FirstPlanCreator from './_components/first-plan-creator';
 import { ExerciseBox, IconArrowBox, StyledBoxShadow, TrainingUnitBox, TrainingUnitBoxContainer } from './_components/styled-components';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import { SortedExercises, SortedExercisesTrainingUnit, TrainingPlan, TrainingUnit } from './types'
 import { StyledHr } from './_components/styled-components'
+import { useRouter } from 'next/navigation';
 
 const apiClient = axios.create({
   baseURL: 'http://localhost:3000/',
@@ -23,6 +23,8 @@ const Dashboard = () => {
     const [sortedExercisesInUnit, setSortedExercisesInUnit] = useState<SortedExercisesTrainingUnit[]>([]);
     const [expandedExercises, setExpandedExercises] = useState<Record<string, boolean>>({});
     const [selectedPlan, setSelectedPlan] = useState<TrainingPlan | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
+    const router = useRouter();
 
     const getMainPlan = async () => {
       await apiClient.get('training-plan/getMainPlan').then((response: AxiosResponse) => {
@@ -45,7 +47,12 @@ const Dashboard = () => {
 
     const getPlans = async () => {
         await apiClient.get('training-plan/get').then((response: AxiosResponse) => {
-            setTrainingPlans(response.data);
+            const plans = response.data;
+            if(plans && Array.isArray(plans) && plans.length > 0){
+              setTrainingPlans(plans);
+            } else {
+              router.push('training-plan-creator');
+            }
         }).catch((errors: AxiosError) => {
             console.log(errors);
         })
@@ -63,11 +70,20 @@ const Dashboard = () => {
         }));
     };
 
-    useEffect(() => {
-        getMainPlan();
-        getPlans();
-    }, [])
+    
 
+    useEffect(() => {
+      const fetchData = async () => {
+          await getMainPlan();
+          await getPlans();
+          setIsLoading(false);
+      };
+      fetchData();
+  }, []);
+  
+  if (isLoading) {
+      return <div>Loading...</div>;  
+  }
     const handleSetNewMainPlan = async (newValue: any) => {
         if(newValue){
             await updateMainPlan(newValue.id);
@@ -231,7 +247,7 @@ const Dashboard = () => {
                     {mainTrainingPlanSelector}
                 </StyledBoxShadow>
             ) : (
-                <FirstPlanCreator />
+              null
             )}
             </div>
         </>
