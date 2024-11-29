@@ -58,8 +58,14 @@ export default function NavBar() {
         </Menu>
     );
     return (
-        <Box sx={{ flexGrow: 1, width: '100%' }}>
-          <AppBar position="static">
+      <Box sx={{ flexGrow: 1, width: '95%' }}>
+            <AppBar 
+                position="fixed" 
+                sx={{
+                  marginBottom: "20px",
+                  backgroundColor: 'primary.main',
+                }}
+            >
             <Toolbar>
               <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
                 Strength training management system

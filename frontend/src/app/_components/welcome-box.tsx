@@ -6,11 +6,11 @@ import { useRouter } from "next/navigation";
 const WelcomeBox: React.FC = () => {
     const router = useRouter();
     return (
-        <StyledBox>
+        <StyledBox sx={{marginTop: "150px"}}>
             <h3>Welcome In Strength Training Management System!</h3>
             <StyledHr />
             <p>
-                Application is designed to help you track and customize your fitness journey. With this intuitive web-based platform, you can:
+                Application is designed to help you track and customize your fitness journey. With this web-based platform, you can:
             </p>
             <ul>
                 <li><strong>Create Your Training Plan:</strong> Add exercises tailored to your goals and build a personalized training regimen.</li><br/>

@@ -34,7 +34,7 @@ interface ExerciseDataForm {
     description?: string;   
     sets: number;   
     reps: number;   
-    tempo?: string; 
+    tempo?: string | number[]; 
     load?: number;  
     categories: number[];
 }

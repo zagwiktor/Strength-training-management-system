@@ -31,6 +31,6 @@ export class CreateExerciseDto {
     @IsOptional()
     load?: number;
 
-    @IsArray()
+    @IsArray() 
     categories: number[];
 }

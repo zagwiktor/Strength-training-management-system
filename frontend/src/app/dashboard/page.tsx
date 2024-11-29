@@ -142,7 +142,7 @@ const Dashboard = () => {
   };
 
     const mainTrainingPlanSelector = (
-        <Box sx={{marginBottom: "20px"}}>
+        <Box sx={{margin: "70px 0 20px 0"}}>
             <h3>Choose active training plan</h3>
             <Autocomplete
                 options={trainingPlans || []}
