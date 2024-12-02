@@ -51,6 +51,8 @@ export const ExerciseBox = styled(Box)(() => ({
     width: '95%'
 }));
 
+
+
 export const StyledHr = styled.hr(() => ({
     width: '90%',                    
     height: '1px',

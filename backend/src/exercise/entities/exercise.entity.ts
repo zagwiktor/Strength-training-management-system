@@ -2,9 +2,10 @@ import { ExerciseCategory } from "src/exercise-category/entities/exercise-catego
 import { TrainingPlan } from "src/training-plan/entities/training-plan.entity";
 import { TrainingUnit } from "src/training-unit/entities/training-unit.entity";
 import { User } from "src/user/entities/user.entity";
-import { Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, PrimaryGeneratedColumn, Unique } from "typeorm";
 
 @Entity()
+@Unique(['name', 'author'])
 export class Exercise {
     @PrimaryGeneratedColumn()
     id: number;

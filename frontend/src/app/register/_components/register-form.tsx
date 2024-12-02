@@ -41,7 +41,7 @@ const RegisterForm = () => {
         });
     }
     return (
-        <StyledBoxShadow>
+        <StyledBoxShadow sx={{marginTop: "100px"}}>
             <form onSubmit={handleSubmit(onSubmit)}>
                 <FormControl>
                     <FormGroup sx={{ gap: '16px' }}>

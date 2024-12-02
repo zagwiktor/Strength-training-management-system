@@ -1,14 +1,13 @@
 'use client';
 import { StyledBoxShadow } from "@/app/_components/styled-components";
-import { Autocomplete, Box, Button, Collapse, FormControl, FormControlLabel, FormGroup, IconButton, InputLabel, List, ListItem, ListItemText, MenuItem, Radio, RadioGroup, Select, TextField } from "@mui/material";
+import { Autocomplete, Box, Button, Checkbox, FormControl, FormControlLabel, FormGroup, IconButton, InputLabel, MenuItem, Radio, RadioGroup, Select, TextField } from "@mui/material";
 import axios, { AxiosError, AxiosResponse } from "axios";
 import { PlanCreatorExColumnBox, PlanCreatorExMainBox, YourExBox, NameForTrainingPlanBox, TrainingUnitBox, ExerciseBox, StyledHr } from "./_components/styled-components";
 import { useEffect, useState } from "react";
 import DeleteIcon from '@mui/icons-material/Delete';
-import { TransitionGroup } from 'react-transition-group';
-import { set, SubmitHandler, useForm } from "react-hook-form";
+import { SubmitHandler, useForm } from "react-hook-form";
 import NavBar from "../_components/navbar";
-import { error } from "console";
+
 
 
 
@@ -36,8 +35,22 @@ const TrainingPlanCreator = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [categoryMode, setCategoryMode] = useState<'new' | 'existing'>('new'); 
     const [newCategory, setNewCategory] = useState<string | null>(null);
+    const [infoCreator, setInfoCreator] = useState<string[]>([]);
+    const [infoYourEx, setInfoYourEx] = useState<string | null>(null);
     const [existingCategory, setExistingCategory] = useState<number | null>(null);
-    const { register, handleSubmit, formState: { errors } } = useForm<ExerciseDataForm>();
+    const {
+        register: registerPlan,
+        handleSubmit: handleSubmitPlan,
+        formState: { errors: errorsPlan },
+        reset: resetPlan,
+      } = useForm<TrainingPlanForm>();
+    
+      const {
+        register: registerExercise,
+        handleSubmit: handleSubmitExercise,
+        formState: { errors: errorsExercise },
+        reset: resetExercise,
+      } = useForm<ExerciseDataForm>();
 
     const getYoursExercises = async () => {
         await apiClient.get('exercise/get').then((response: AxiosResponse) => {
@@ -56,38 +69,74 @@ const TrainingPlanCreator = () => {
         })
     }
 
-    const onSubmitEx:SubmitHandler<ExerciseDataForm> = async (data: ExerciseDataForm) => {
-        if (data.tempo) {
-            if (typeof data.tempo === "string"){
+    const onSubmitEx: SubmitHandler<ExerciseDataForm> = async (data: ExerciseDataForm) => {
+        try {
+            setInfoCreator([]);
+            setInfoYourEx(null);
+            if (data.tempo && typeof data.tempo === "string") {
                 const tempoArray = data.tempo.split(',').map(value => parseInt(value.trim()));
                 data.tempo = tempoArray;
-            }  
-        }
+            }
+            if (data.description === "") {
+                data.description = undefined;
+            }
+            if (existingCategory) {
+                data.categories = [existingCategory];
+            }
+            if (newCategory) {
+                await apiClient.post('exercise-category/create', { name: newCategory })
+                    .then(async response => {
+                        data.categories = [response.data.id]; 
+                        await getCategories();
+                        setIsLoading(false);
+                    })
+                    .catch(() => {
+                        setInfoCreator(["An error occurred while adding the category"]);
+                    });
+            }
+            if (!(Array.isArray(data.categories) && data.categories.length > 0)) {
+                data.categories = [];
+            }
 
-        console.log(existingCategory);
-        console.log(newCategory);
-        if (existingCategory) {
-            data.categories = [existingCategory];
+            await apiClient.post('/exercise/create', data)
+                .then(async response => {
+                    console.log(response);
+                    await getYoursExercises();
+                    await getCategories();
+                    setIsLoading(false);
+                    setInfoYourEx(`${data.name} has been added`);
+                    resetExercise({
+                        name: "",
+                        description: "",
+                        sets: undefined,
+                        reps: undefined,
+                        load: undefined,
+                        tempo: "",
+                        categories: []
+                    });
+                    setNewCategory(null);
+                    setExistingCategory(null);
+                })
+                .catch(error => {
+                    setInfoCreator((prev) => [...prev, error.response.data.message || "Unknown error occurred"]);
+                });
+        } catch (error) {
+            console.error("An error occurred during submission:", error);
         }
-        if (newCategory) {
-            await apiClient.post('exercise-category/create', data)
-            .then((response) => {
-                console.log(response)
-            })
-            .catch((errors) => {
-                
-            })
-        }
+    };
 
-
-        // await apiClient.post('/exercise/create', data)
-        // .then((response: AxiosResponse) => {
-        //     console.log(response);
-        // })
-        // .catch((error: AxiosError) => {
-        //     console.log(error);
-        // });
-    }
+    const onSubmitPlan: SubmitHandler<TrainingPlanForm> = async (data) => {
+        // try {
+        //   console.log('Form data:', data);
+        //   reset({
+        //     name: '',
+        //     description: '',
+        //     mainPlan: false,
+        //   });
+        // } catch (error) {
+        //   console.error('Error submitting the form:', error);
+        // }
+    };
 
     useEffect(() => {
         const fetchData = async () => {
@@ -181,9 +230,19 @@ const TrainingPlanCreator = () => {
         return true; 
     };
 
+    const nextStageIsVisible = (): boolean => {
+        if (trainingUnits.length > 0) {
+            return trainingUnits.every((unit) => {
+                return (Array.isArray(unit.exercises) && unit.exercises.length > 0);
+            })
+        } else {
+            return false
+        }
+    }
     return (
         <>
         <NavBar/>
+        {}
         <Box sx={{display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', margin: "100px 0 100px 0"}}>
             <p>To create a training plan, you first need to add training units and include exercise to them</p>
             <StyledBoxShadow> 
@@ -241,6 +300,45 @@ const TrainingPlanCreator = () => {
                         ) : (
                             <p>No training units added yet.</p>
                         )}
+                        <p>You must add at least one exercise to each training unit to proceed further.</p>
+                        {nextStageIsVisible() ? (
+                            <TrainingUnitBox>
+                                <p>Training Plan Details</p>
+                                <form onSubmit={handleSubmitPlan(onSubmitPlan)}>
+                                  <FormControl>
+                                    <FormGroup sx={{ gap: '16px' }}>
+                                      <TextField
+                                        id="plan-form-name-input"
+                                        label="Name *"
+                                        {...registerPlan('name', { required: 'Name is required' })}
+                                        error={!!errorsPlan.name}
+                                        helperText={errorsPlan.name ? errorsPlan.name.message : ''}
+                                      />
+                                      <TextField
+                                        id="plan-form-description-input"
+                                        label="Description (optional)"
+                                        {...registerPlan('description', { minLength: { value: 3, message: 'Description must be at least 3 characters long' } })}
+                                        error={!!errorsPlan.description}
+                                        helperText={errorsPlan.description ? errorsPlan.description.message : ''}
+                                      />
+                                      <Box sx={{display: "flex", justifyContent: "center", alignItems: "center"}}>
+                                        <FormControlLabel
+                                          control={
+                                            <Checkbox
+                                              {...registerPlan('mainPlan')}
+                                            />
+                                          }
+                                          label="Set as Main Plan"
+                                        />
+                                      </Box>
+                                      <Button variant="outlined" type="submit">
+                                        Add Plan
+                                      </Button>
+                                    </FormGroup>
+                                  </FormControl>
+                                </form>
+                            </TrainingUnitBox>
+                        ) : (null)}
                     </PlanCreatorExColumnBox>
                         {trainingUnits && trainingUnits.length > 0 ? (
                             <PlanCreatorExColumnBox sx={{borderLeft: '4px solid lightgray', padding: '0 15px 0 15px'}}>
@@ -286,11 +384,20 @@ const TrainingPlanCreator = () => {
                                             )}
                                         </Select>
                                     </FormControl>
+                                    {infoYourEx ? (
+                                        <Box sx={{display: 'block' , textAlign: 'center'}}>
+                                            <p style={{ fontSize: '12px', color: 'green'}}>{infoYourEx}</p>
+                                        </Box>
+                                    ) : null}
                                     {selectedYourExercise && selectedYourTrainingUnit !== '' ? (
                                         <Box sx={{paddingBottom: "15px"}}>
                                             <Button variant='outlined' onClick={handleAddExerciseToUnit}>Add to the plan</Button>
                                         </Box>
-                                    ) : (<p>Select exercise and training unit in order to add exercise.</p>)}
+                                    ) : (
+                                        <Box>
+                                            <p>Select exercise and training unit in order to add exercise.</p>
+                                        </Box>
+                                    )}
                                     {!isExCreatorVisible ? (
                                         <Box>
                                             <Button variant='outlined' onClick={() => setIsExCreatorVisible(!isExCreatorVisible)}>OPEN EXERCISE CREATOR</Button>
@@ -303,22 +410,22 @@ const TrainingPlanCreator = () => {
                         <PlanCreatorExColumnBox sx={{borderLeft: '4px solid lightgray', paddingLeft: "20px"}}>
                             <Box sx={{display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column'}}>
                                 <p>Exercise creator</p>
-                                <form onSubmit={handleSubmit(onSubmitEx)}>
+                                <form onSubmit={handleSubmitExercise(onSubmitEx)}>
                                     <FormControl>
                                         <FormGroup sx={{ gap: '16px' }}>
                                             <TextField
                                                 id="ex-form-name-input"
                                                 label="Name *"
-                                                {...register('name', { required: 'Name is required' })}
-                                                error={!!errors.name}
-                                                helperText={errors.name ? errors.name.message : ''}
+                                                {...registerExercise('name', { required: 'Name is required' })}
+                                                error={!!errorsExercise.name}
+                                                helperText={errorsExercise.name ? errorsExercise.name.message : ''}
                                             />
                                             <TextField
                                                 id="ex-form-description-input"
                                                 label="Description (optional)"
-                                                {...register('description', { minLength: {value: 2,  message: 'Description must be at least 2 characters long'}})}
-                                                error={!!errors.description}
-                                                helperText={errors.description ? errors.description.message : ''}
+                                                {...registerExercise('description', { minLength: {value: 2,  message: 'Description must be at least 2 characters long'}})}
+                                                error={!!errorsExercise.description}
+                                                helperText={errorsExercise.description ? errorsExercise.description.message : ''}
                                             />
                                             <TextField
                                                 id="ex-form-sets-input"
@@ -329,13 +436,13 @@ const TrainingPlanCreator = () => {
                                                       shrink: true,
                                                     },
                                                 }}
-                                                {...register('sets', {
+                                                {...registerExercise('sets', {
                                                     required: 'Number of sets is required',
                                                     valueAsNumber: true,
                                                     validate: (value) => value === undefined || value >= 0 || 'Number of sets be a positive number',
                                                 })}
-                                                error={!!errors.sets}
-                                                helperText={errors.sets ? errors.sets.message : ''}
+                                                error={!!errorsExercise.sets}
+                                                helperText={errorsExercise.sets ? errorsExercise.sets.message : ''}
                                             />  
                                             <TextField
                                                 id="ex-form-reps-input"
@@ -346,12 +453,12 @@ const TrainingPlanCreator = () => {
                                                       shrink: true,
                                                     },
                                                 }}
-                                                {...register('reps', {required: 'Number of sets is required',
+                                                {...registerExercise('reps', {required: 'Number of sets is required',
                                                     valueAsNumber: true,
                                                     validate: (value) => value === undefined || value >= 0 || 'Number of reps be a positive number',
                                                 })}
-                                                error={!!errors.reps}
-                                                helperText={errors.reps ? errors.reps.message : ''}
+                                                error={!!errorsExercise.reps}
+                                                helperText={errorsExercise.reps ? errorsExercise.reps.message : ''}
                                             />
                                             <TextField
                                                 id="ex-form-load-input"
@@ -362,19 +469,19 @@ const TrainingPlanCreator = () => {
                                                         shrink: true,
                                                     },
                                                 }}
-                                                {...register('load', {
+                                                {...registerExercise('load', {
                                                     valueAsNumber: true,
                                                 })}
-                                                error={!!errors.load}
-                                                helperText={errors.load ? errors.load.message : ''}
+                                                error={!!errorsExercise.load}
+                                                helperText={errorsExercise.load ? errorsExercise.load.message : ''}
                                             />
                                             <TextField
                                                 label="Tempo (ePhase, ePause, cPhases, cPause)"
-                                                {...register('tempo', {  
+                                                {...registerExercise('tempo', {  
                                                   validate: (value) => validateTempo(value as string),
                                                 })}
-                                                error={!!errors.tempo}
-                                                helperText={errors.tempo ? errors.tempo.message : ''}
+                                                error={!!errorsExercise.tempo}
+                                                helperText={errorsExercise.tempo ? errorsExercise.tempo.message : ''}
                                                 slotProps={{
                                                   inputLabel: {
                                                     shrink: true,
@@ -399,7 +506,6 @@ const TrainingPlanCreator = () => {
                                                     onChange={(e) => setNewCategory(e.target.value)}
                                                     variant="outlined"
                                                     fullWidth
-                                                    style={{ marginBottom: '16px' }}
                                                 />
                                             )}
                                             {categoryMode === 'existing' && (
@@ -415,9 +521,16 @@ const TrainingPlanCreator = () => {
                                                         <TextField {...params} label="Select Existing Category" variant="outlined" />
                                                     )}
                                                     fullWidth
-                                                    style={{ marginBottom: '16px' }}
                                                 />
                                             )}
+                                            <Box sx={{display: 'block', justifyContent: 'center'}}>
+                                                {infoCreator && infoCreator.length > 0 ? (
+                                                    infoCreator.map((item, index) => (
+                                                        <Box key={index} sx={{display: 'flex' , justifyContent: 'center'}}>
+                                                            <p style={{ fontSize: '12px', color: 'red'}}>{item}</p>
+                                                        </Box>
+                                                ))) : null}
+                                            </Box>
                                             <Button variant="outlined" type="submit" >Add Exercise</Button>
                                         </FormGroup>
                                     </FormControl>

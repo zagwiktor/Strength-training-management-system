@@ -38,3 +38,10 @@ interface ExerciseDataForm {
     load?: number;  
     categories: number[];
 }
+
+interface TrainingPlanForm {
+    name: string;
+    description?: string;
+    mainPlan: boolean;
+    trainingUnits: TrainingUnit[];
+}

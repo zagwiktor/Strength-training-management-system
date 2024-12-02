@@ -65,7 +65,7 @@ const LoginForm = () => {
                         <p style={{ fontSize: '12px', color: 'red'}}>{info}</p>
                     </Box>
                     <Box sx={{display: 'flex' ,justifyContent: 'center'}}>
-                    <p style={{ fontSize: '12px' }}>Don't have you account yet? <a href='/register'>Register!</a></p>
+                        <p style={{ fontSize: '12px' }}>Don't have you account yet? <a href='/register'>Register!</a></p>
                     </Box>
                 </FormGroup>
             </FormControl>
