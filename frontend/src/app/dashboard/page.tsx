@@ -8,14 +8,12 @@ import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import { SortedExercises, SortedExercisesTrainingUnit, TrainingPlan, TrainingUnit } from './types'
 import { StyledHr } from './_components/styled-components'
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 const apiClient = axios.create({
   baseURL: 'http://localhost:3000/',
   withCredentials: true,
 });
-
-//Zastanowić się nad One to many w training units
 
 const Dashboard = () => {
     const [mainTrainingPlan, setMainTrainingPlan] = useState<TrainingPlan>();
@@ -25,6 +23,9 @@ const Dashboard = () => {
     const [selectedPlan, setSelectedPlan] = useState<TrainingPlan | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const router = useRouter();
+    const [infoPlanCreated, setInfoPlanCreated] = useState<string | null>(null);
+    const searchParams = useSearchParams();
+    const createdPlan = searchParams.get('plan');
 
     const getMainPlan = async () => {
       await apiClient.get('training-plan/getMainPlan').then((response: AxiosResponse) => {
@@ -76,7 +77,11 @@ const Dashboard = () => {
       const fetchData = async () => {
           await getMainPlan();
           await getPlans();
+          if (createdPlan) { 
+            setInfoPlanCreated(createdPlan);
+          }
           setIsLoading(false);
+
       };
       fetchData();
   }, []);
@@ -154,6 +159,11 @@ const Dashboard = () => {
                 onChange={(event, newValue) => handleSetNewMainPlan(newValue)}
                 isOptionEqualToValue={(option, value) => option.id === value?.id}
             />
+            {infoPlanCreated ? (
+              <Box sx={{display: 'block' , textAlign: 'center'}}>
+                <p style={{ fontSize: '12px', color: 'green'}}>{infoPlanCreated} has been created!</p>
+              </Box>
+            ) : (null)}
         </Box>
     );
 
@@ -166,6 +176,7 @@ const Dashboard = () => {
                     {mainTrainingPlanSelector}
                     <StyledBoxShadow>
                       <h2>{mainTrainingPlan.name}</h2>
+                      
                       <hr />
                       <h3>Exercises</h3>
                       {mainTrainingPlan.trainingUnits &&

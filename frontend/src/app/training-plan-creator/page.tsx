@@ -7,20 +7,12 @@ import { useEffect, useState } from "react";
 import DeleteIcon from '@mui/icons-material/Delete';
 import { SubmitHandler, useForm } from "react-hook-form";
 import NavBar from "../_components/navbar";
-
-
-
+import { useRouter } from "next/navigation";
 
 const apiClient = axios.create({
     baseURL: 'http://localhost:3000/',
     withCredentials: true
 });
-
-interface RenderItemOptions {
-    exercise: Exercise;
-    handleRemoveItem: (item: Exercise) => void;
-}
-  
 
 const TrainingPlanCreator = () => {
     const [yourExercises, setYourExercises] = useState<Exercise[]>();
@@ -36,8 +28,11 @@ const TrainingPlanCreator = () => {
     const [categoryMode, setCategoryMode] = useState<'new' | 'existing'>('new'); 
     const [newCategory, setNewCategory] = useState<string | null>(null);
     const [infoCreator, setInfoCreator] = useState<string[]>([]);
+    const [infoCreatorPlan, setInfoCreatorPlan] = useState<string[]>([]);
     const [infoYourEx, setInfoYourEx] = useState<string | null>(null);
     const [existingCategory, setExistingCategory] = useState<number | null>(null);
+    const router = useRouter();
+
     const {
         register: registerPlan,
         handleSubmit: handleSubmitPlan,
@@ -125,17 +120,50 @@ const TrainingPlanCreator = () => {
         }
     };
 
+    const postTrainingUnits = async (trainingUnit: TrainingUnit): Promise<number | null> => {
+        const trainingUnitExercises = trainingUnit.exercises.map((exercise) => exercise.id);
+        const dataToSend = {
+            name: trainingUnit.name,
+            exercises: trainingUnitExercises,
+        };
+        try {
+            const response: AxiosResponse = await apiClient.post('training-units/create', dataToSend);
+            return response.data.id;
+        } catch (error: unknown) {
+            if (error instanceof AxiosError) {
+                console.error('Error posting training unit:', error.message);
+            } else {
+                console.error('Unknown error:', error);
+            }
+            return null; 
+        }
+    };
+
     const onSubmitPlan: SubmitHandler<TrainingPlanForm> = async (data) => {
-        // try {
-        //   console.log('Form data:', data);
-        //   reset({
-        //     name: '',
-        //     description: '',
-        //     mainPlan: false,
-        //   });
-        // } catch (error) {
-        //   console.error('Error submitting the form:', error);
-        // }
+        setInfoCreatorPlan([]);
+        try {
+            const trainingUnitsIds = await Promise.all(
+                trainingUnits.map(async (trainingUnit) => {
+                    const result = await postTrainingUnits(trainingUnit);
+                    if (result === null) {
+                        throw new Error(`Failed to create training unit: ${trainingUnit.name}`);
+                    }
+                    return result;
+                })
+            );
+            const dataToSend = { ...data, trainingUnitsIds: trainingUnitsIds };
+            const response = await apiClient.post('training-plan/create', dataToSend);
+            resetPlan({
+                name: '',
+                description: '',
+                mainPlan: false,
+            });
+            router.push(`/dashboard?plan=${dataToSend.name}`);
+        } catch (error: any) {
+            const errorMessage = error.response?.data?.message || error.message || "Unknown error occurred";
+            setInfoCreatorPlan((prev) => [...prev, errorMessage]);
+            console.error('Error occurred:', errorMessage);
+        }
     };
 
     useEffect(() => {
@@ -239,10 +267,10 @@ const TrainingPlanCreator = () => {
             return false
         }
     }
+
     return (
         <>
         <NavBar/>
-        {}
         <Box sx={{display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', margin: "100px 0 100px 0"}}>
             <p>To create a training plan, you first need to add training units and include exercise to them</p>
             <StyledBoxShadow> 
@@ -305,37 +333,46 @@ const TrainingPlanCreator = () => {
                             <TrainingUnitBox>
                                 <p>Training Plan Details</p>
                                 <form onSubmit={handleSubmitPlan(onSubmitPlan)}>
-                                  <FormControl>
-                                    <FormGroup sx={{ gap: '16px' }}>
-                                      <TextField
-                                        id="plan-form-name-input"
-                                        label="Name *"
-                                        {...registerPlan('name', { required: 'Name is required' })}
-                                        error={!!errorsPlan.name}
-                                        helperText={errorsPlan.name ? errorsPlan.name.message : ''}
-                                      />
-                                      <TextField
-                                        id="plan-form-description-input"
-                                        label="Description (optional)"
-                                        {...registerPlan('description', { minLength: { value: 3, message: 'Description must be at least 3 characters long' } })}
-                                        error={!!errorsPlan.description}
-                                        helperText={errorsPlan.description ? errorsPlan.description.message : ''}
-                                      />
-                                      <Box sx={{display: "flex", justifyContent: "center", alignItems: "center"}}>
-                                        <FormControlLabel
-                                          control={
-                                            <Checkbox
-                                              {...registerPlan('mainPlan')}
+                                    <FormControl>
+                                        <FormGroup sx={{ gap: '16px' }}>
+                                            <TextField
+                                              id="plan-form-name-input"
+                                              label="Name *"
+                                              {...registerPlan('name', { required: 'Name is required' })}
+                                              error={!!errorsPlan.name}
+                                              helperText={errorsPlan.name ? errorsPlan.name.message : ''}
                                             />
-                                          }
-                                          label="Set as Main Plan"
-                                        />
-                                      </Box>
-                                      <Button variant="outlined" type="submit">
-                                        Add Plan
-                                      </Button>
-                                    </FormGroup>
-                                  </FormControl>
+                                            <TextField
+                                              id="plan-form-description-input"
+                                              label="Description (optional)"
+                                              {...registerPlan('description', { minLength: { value: 3, message: 'Description must be at least 3 characters long' } })}
+                                              error={!!errorsPlan.description}
+                                              helperText={errorsPlan.description ? errorsPlan.description.message : ''}
+                                            />
+                                            <Box sx={{display: "flex", justifyContent: "center", alignItems: "center"}}>
+                                              <FormControlLabel
+                                                control={
+                                                  <Checkbox
+                                                    {...registerPlan('mainPlan')}
+                                                  />
+                                                }
+                                                label="Set as Main Plan"
+                                              />
+                                            </Box>
+                                            <Box sx={{display: 'block', justifyContent: 'center'}}>
+                                                {infoCreatorPlan && infoCreatorPlan.length > 0 && (
+                                                    infoCreatorPlan.map((item, index) => (
+                                                        <Box key={index} sx={{ display: 'flex', justifyContent: 'center' }}>
+                                                            <p style={{ fontSize: '12px', color: 'red' }}>{item}</p>
+                                                        </Box>
+                                                    ))
+                                                )}
+                                            </Box>
+                                            <Button variant="outlined" type="submit">
+                                              Add Plan
+                                            </Button>
+                                        </FormGroup>
+                                    </FormControl>
                                 </form>
                             </TrainingUnitBox>
                         ) : (null)}

@@ -7,10 +7,10 @@ export class CreateTrainingPlanDto {
     @Length(2, 20, { message: 'Name must be between 2 and 20 characters long.' })
     name: string;
 
+
     @IsString()
-    @IsNotEmpty()
-    @Length(2, 100, { message: 'Description must be between 2 and 100 characters long.' })
-    description: string;
+    @IsOptional()
+    description?: string;
 
 
     @IsArray()

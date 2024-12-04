@@ -27,6 +27,7 @@ const RegisterForm = () => {
     const { register, handleSubmit, formState: { errors }} = useForm<RegisterDataForm>()
     const [info, setInfo] = useState<string[] | null>(null);
     const router = useRouter();
+    
     const onSubmit:SubmitHandler<RegisterDataForm> = async (data: RegisterDataForm) => {
         data.height = parseFloat(data.height as unknown as string);
         data.weight = parseFloat(data.weight as unknown as string);

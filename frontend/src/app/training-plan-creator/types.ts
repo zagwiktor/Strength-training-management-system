@@ -43,5 +43,5 @@ interface TrainingPlanForm {
     name: string;
     description?: string;
     mainPlan: boolean;
-    trainingUnits: TrainingUnit[];
+    trainingUnitsIds: number[];
 }

@@ -36,7 +36,7 @@ export const TrainingUnitBox = styled(Box)(() => ({
     alignItems: "center",
     boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
     borderRadius: "8px",
-    paddingBottom: "10px",
+    padding: "20px",
     marginBottom: "10px",
     minWidth: "250px"
 }));
