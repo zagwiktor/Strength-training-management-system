@@ -32,20 +32,18 @@ const TrainingPlanCreator = () => {
     const [infoYourEx, setInfoYourEx] = useState<string | null>(null);
     const [existingCategory, setExistingCategory] = useState<number | null>(null);
     const router = useRouter();
-
     const {
         register: registerPlan,
         handleSubmit: handleSubmitPlan,
         formState: { errors: errorsPlan },
         reset: resetPlan,
-      } = useForm<TrainingPlanForm>();
-    
-      const {
+    } = useForm<TrainingPlanForm>();
+    const {
         register: registerExercise,
         handleSubmit: handleSubmitExercise,
         formState: { errors: errorsExercise },
         reset: resetExercise,
-      } = useForm<ExerciseDataForm>();
+    } = useForm<ExerciseDataForm>();
 
     const getYoursExercises = async () => {
         await apiClient.get('exercise/get').then((response: AxiosResponse) => {

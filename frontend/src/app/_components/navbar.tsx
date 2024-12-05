@@ -85,9 +85,10 @@ export default function NavBar() {
                 </Button> 
                 <Divider orientation="vertical" variant="middle" flexItem />
                 <Button
+                    onClick={() => router.push('dashboard')}
                     sx={{ my: 2, color: 'white', display: 'block' }}
                 >
-                    Raports
+                    Training Plans
                 </Button> 
                 <Divider orientation="vertical" variant="middle" flexItem />
               </Box>

@@ -44,7 +44,6 @@ export const TrainingUnitBoxContainer = styled(Box)(() => ({
 export const TrainingUnitBox = styled(Box)(() => ({
     display: "flex",
     flexDirection: "column",
-    justifyContent: "space-between",
     alignItems: "center",
     boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
     borderRadius: "8px",
@@ -52,6 +51,17 @@ export const TrainingUnitBox = styled(Box)(() => ({
     minWidth: "300px",
     boxSizing: "border-box", 
 }));
+
+export const EditPlanDetailBox = styled(Box)(() => ({
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+    borderRadius: "8px",
+    padding: "15px",
+    marginBottom: "20px"
+}));
+
 
 export const StyledHr = styled.hr(() => ({
     width: '90%',                    

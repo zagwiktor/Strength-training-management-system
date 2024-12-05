@@ -1,14 +1,18 @@
 'use client';
 import axios, { AxiosError, AxiosResponse } from 'axios';
 import NavBar from '../_components/navbar';
-import React, { useEffect, useState } from 'react';
-import { Autocomplete, Box, Collapse, FormControlLabel, Switch, TextField } from '@mui/material';
-import { ExerciseBox, IconArrowBox, StyledBoxShadow, TrainingUnitBox, TrainingUnitBoxContainer } from './_components/styled-components';
+import React, { use, useEffect, useState } from 'react';
+import { Autocomplete, Box, Button, Collapse, FormControlLabel, IconButton, Switch, TextField, FormGroup, FormControl, DialogContent, DialogActions, DialogTitle, Dialog} from '@mui/material';
+import { ExerciseBox, IconArrowBox, StyledBoxShadow, TrainingUnitBox, TrainingUnitBoxContainer, EditPlanDetailBox} from './_components/styled-components';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
-import { SortedExercises, SortedExercisesTrainingUnit, TrainingPlan, TrainingUnit } from './types'
+import { SortedExercises, SortedExercisesTrainingUnit, TrainingPlan, TrainingPlanEditForm, TrainingUnit } from './types'
 import { StyledHr } from './_components/styled-components'
 import { useRouter, useSearchParams } from 'next/navigation';
+import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
+import AddIcon from '@mui/icons-material/Add';
+import { set, SubmitHandler, useForm } from 'react-hook-form';
 
 const apiClient = axios.create({
   baseURL: 'http://localhost:3000/',
@@ -16,16 +20,24 @@ const apiClient = axios.create({
 });
 
 const Dashboard = () => {
-    const [mainTrainingPlan, setMainTrainingPlan] = useState<TrainingPlan>();
+    const [mainTrainingPlan, setMainTrainingPlan] = useState<TrainingPlan | null>();
     const [trainingPlans, setTrainingPlans] = useState<TrainingPlan[]>();
     const [sortedExercisesInUnit, setSortedExercisesInUnit] = useState<SortedExercisesTrainingUnit[]>([]);
     const [expandedExercises, setExpandedExercises] = useState<Record<string, boolean>>({});
     const [selectedPlan, setSelectedPlan] = useState<TrainingPlan | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [infoEditPlanDetails, setInfoEditPlanDetails] = useState<string | null>(null);
+    const [openDialog, setOpenDialog] = useState(false);
+    const [editPlanDetailsVisible, setEditPlanDetailsVisible] = useState<boolean>(false);
     const router = useRouter();
-    const [infoPlanCreated, setInfoPlanCreated] = useState<string | null>(null);
     const searchParams = useSearchParams();
-    const createdPlan = searchParams.get('plan');
+    const [infoPlanCreated, setInfoPlanCreated] = useState<string | null>(searchParams.get('plan'));
+    const {
+      register: registerPlanData,
+      handleSubmit: handleSubmitPlan,
+      formState: { errors: errorsPlan },
+      reset: resetPlan,
+  } = useForm<TrainingPlanEditForm>();
 
     const getMainPlan = async () => {
       await apiClient.get('training-plan/getMainPlan').then((response: AxiosResponse) => {
@@ -71,19 +83,13 @@ const Dashboard = () => {
         }));
     };
 
-    
-
-    useEffect(() => {
-      const fetchData = async () => {
-          await getMainPlan();
-          await getPlans();
-          if (createdPlan) { 
-            setInfoPlanCreated(createdPlan);
-          }
-          setIsLoading(false);
-
-      };
-      fetchData();
+  useEffect(() => {
+    const fetchData = async () => {
+        await getMainPlan();
+        await getPlans();
+        setIsLoading(false);
+    };
+    fetchData();
   }, []);
   
   if (isLoading) {
@@ -115,6 +121,51 @@ const Dashboard = () => {
           });
       });
     };
+
+    const handleDeleteClick = () => {
+      setOpenDialog(true);
+    };
+  
+    const clearPlanQueryParam = () => {
+      const newSearchParams = new URLSearchParams(searchParams);
+      newSearchParams.delete('plan');
+      router.replace(`${window.location.pathname}?${newSearchParams.toString()}`);
+    };
+
+    const handleDeleteConfirm = async () => {
+      if (mainTrainingPlan) {
+          try {
+              await apiClient.delete(`/training-plan/delete/${mainTrainingPlan.id}`);
+              setMainTrainingPlan(null)
+              clearPlanQueryParam()
+              setInfoPlanCreated(null);
+              await getPlans();
+          } catch (error) {
+              console.log(error);
+          }
+      }
+      setOpenDialog(false);
+    };
+  
+    const handleDialogClose = () => {
+        setOpenDialog(false);
+    };
+
+    const onSubmitPlanEdit: SubmitHandler<TrainingPlanEditForm> = async (data: TrainingPlanEditForm) => {
+      console.log(data);
+      if (mainTrainingPlan) {
+        await apiClient.patch(`/training-plan/update/${mainTrainingPlan.id}`, data)
+        .then((response: AxiosResponse) => {
+          setEditPlanDetailsVisible(false);
+          getMainPlan();
+          getPlans();
+        })
+        .catch((error: AxiosError) => {
+          setInfoEditPlanDetails("An error occurred while updating the training plan details.");
+        })
+      }
+      
+    }
 
     const handleDownExercise = (trainingUnitId: number, exerciseId: number) => {
       setSortedExercisesInUnit((prev) => {
@@ -150,14 +201,14 @@ const Dashboard = () => {
         <Box sx={{margin: "70px 0 20px 0"}}>
             <h3>Choose active training plan</h3>
             <Autocomplete
-                options={trainingPlans || []}
-                getOptionLabel={(option) => option.name} 
-                renderInput={(params) => (
-                  <TextField {...params} label="Choose a training plan" variant="outlined" />
-                )}
-                value={selectedPlan} 
-                onChange={(event, newValue) => handleSetNewMainPlan(newValue)}
-                isOptionEqualToValue={(option, value) => option.id === value?.id}
+              options={trainingPlans || []}
+              getOptionLabel={(option) => option.name} 
+              renderInput={(params) => (
+                <TextField {...params} label="Choose a training plan" variant="outlined" />
+              )}
+              value={selectedPlan} 
+              onChange={(event, newValue) => handleSetNewMainPlan(newValue)}
+              isOptionEqualToValue={(option, value) => option.id === value?.id}
             />
             {infoPlanCreated ? (
               <Box sx={{display: 'block' , textAlign: 'center'}}>
@@ -175,10 +226,106 @@ const Dashboard = () => {
                 <>
                     {mainTrainingPlanSelector}
                     <StyledBoxShadow>
-                      <h2>{mainTrainingPlan.name}</h2>
+                      <Box sx={{display: "flex", justifyContent: "space-between"}}>
+                        <Box sx={{display: "flex", gap: "20px"}}>
+                          <h2>{mainTrainingPlan.name}</h2>
+                            <IconButton
+                              onClick={handleDeleteClick}
+                              aria-label="delete"
+                              title="Delete Training Plan"
+                            >
+                              <DeleteIcon sx={{fontSize: "30px"}}/>
+                            </IconButton>
+                            <IconButton
+                              onClick={() => setEditPlanDetailsVisible((prev) => !prev)}
+                              aria-label="edit"
+                              title="Edit Training Plan"
+                            >
+                                <EditIcon sx={{fontSize: "30px"}}/>
+                            </IconButton>
+                        </Box>
+                        <Box sx={{display: "flex", justifyContent: "center"}}>
+                          <IconButton
+                            onClick={() => router.push('training-plan-creator')}
+                            aria-label="add"
+                            title="Add new Training Plan"
+                          >
+                            <AddIcon sx={{fontSize: "40px"}}/>
+                          </IconButton>
+                        </Box>
+                        <Dialog open={openDialog} onClose={handleDialogClose}>
+                            <DialogTitle>Confirm Deletion</DialogTitle>
+                            <DialogContent>
+                                <p>Are you sure you want to delete the training plan "{mainTrainingPlan.name}"?</p>
+                            </DialogContent>
+                            <DialogActions>
+                                <Button onClick={handleDialogClose} color="primary">
+                                    Cancel
+                                </Button>
+                                <Button onClick={handleDeleteConfirm} color="secondary">
+                                    Delete
+                                </Button>
+                            </DialogActions>
+                        </Dialog>
+                      </Box>
+                      {mainTrainingPlan.description ? (
+                        <p>Description: {mainTrainingPlan.description}</p>
+                      ) : (null)}
+                      {editPlanDetailsVisible ? (
+                        <EditPlanDetailBox>
+                          <p>Training Plan Editor</p>
+                          <form onSubmit={handleSubmitPlan(onSubmitPlanEdit)}>
+                              <FormControl>
+                                  <FormGroup sx={{ gap: '16px' }}>
+                                      <TextField
+                                          id="plan-form-name-input"
+                                          label="Name *"
+                                          {...registerPlanData('name', {
+                                              required: 'Name is required',
+                                              minLength: { value: 2, message: 'Name must be at least 2 characters long' },
+                                              maxLength: { value: 20, message: 'Name must not exceed 20 characters' },
+                                          })}
+                                          error={!!errorsPlan.name}
+                                          helperText={errorsPlan.name ? errorsPlan.name.message : ''}
+                                      />
+                                      <TextField
+                                          id="plan-form-description-input"
+                                          label="Description (optional)"
+                                          {...registerPlanData('description', {
+                                              minLength: { value: 2, message: 'Description must be at least 2 characters long' },
+                                          })}
+                                          error={!!errorsPlan.description}
+                                          helperText={errorsPlan.description ? errorsPlan.description.message : ''}
+                                      />
+                                      {infoEditPlanDetails ? (
+                                        <Box sx={{display: 'block' , textAlign: 'center'}}>
+                                          <p style={{ fontSize: '12px', color: 'red'}}>{infoEditPlanDetails}</p>
+                                        </Box>
+                                      ) : (null)}
+                                      <Button variant="outlined" type="submit">
+                                          Save Plan
+                                      </Button>
+                                      <Button variant="outlined" onClick={() => setEditPlanDetailsVisible(false)}>
+                                          Close Editor
+                                      </Button>
+                                  </FormGroup>
+                              </FormControl>
+                          </form>
+                        </EditPlanDetailBox>
+                      ) : (null)}
                       
                       <hr />
-                      <h3>Exercises</h3>
+                      <Box sx={{display: "flex", justifyContent: "space-between"}}>
+                        <h3>Exercises</h3>
+                        <IconButton
+                            onClick={() => router.push(`add-training-unit`)}
+                            aria-label="add"
+                            title="Add Training Unit"
+                          >
+                            <AddIcon sx={{fontSize: "30px"}}/>
+                        </IconButton>
+                      </Box>
+                      
                       {mainTrainingPlan.trainingUnits &&
                       Array.isArray(mainTrainingPlan.trainingUnits) &&
                       mainTrainingPlan.trainingUnits.length > 0 ? (
