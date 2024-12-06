@@ -27,7 +27,8 @@ const Dashboard = () => {
     const [selectedPlan, setSelectedPlan] = useState<TrainingPlan | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [infoEditPlanDetails, setInfoEditPlanDetails] = useState<string | null>(null);
-    const [openDialog, setOpenDialog] = useState(false);
+    const [openDialogPlan, setOpenDialogPlan] = useState(false);
+    const [openDialogUnit, setOpenDialogUnit] = useState(false);
     const [editPlanDetailsVisible, setEditPlanDetailsVisible] = useState<boolean>(false);
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -122,8 +123,8 @@ const Dashboard = () => {
       });
     };
 
-    const handleDeleteClick = () => {
-      setOpenDialog(true);
+    const handleDeleteClickPlan = () => {
+      setOpenDialogPlan(true);
     };
   
     const clearPlanQueryParam = () => {
@@ -132,7 +133,7 @@ const Dashboard = () => {
       router.replace(`${window.location.pathname}?${newSearchParams.toString()}`);
     };
 
-    const handleDeleteConfirm = async () => {
+    const handleDeleteConfirmPlan = async () => {
       if (mainTrainingPlan) {
           try {
               await apiClient.delete(`/training-plan/delete/${mainTrainingPlan.id}`);
@@ -144,11 +145,33 @@ const Dashboard = () => {
               console.log(error);
           }
       }
-      setOpenDialog(false);
+      setOpenDialogPlan(false);
     };
   
-    const handleDialogClose = () => {
-        setOpenDialog(false);
+    const handleDialogClosePlan = () => {
+      setOpenDialogPlan(false);
+    };
+
+    const handleEditPlan = (id: number) => {
+      router.push(`/edit-training-unit/${id}`);
+    };
+
+    const handleDeleteUnit = () => {
+      setOpenDialogUnit(true);
+    };
+
+    const handleDialogCloseUnit = () => {
+      setOpenDialogUnit(false);
+    };
+
+    const handleDeleteConfirmUnit = async (id: number) => {
+      try {
+        await apiClient.delete(`training-units/delete/${id}`);
+        await getMainPlan();
+        setOpenDialogUnit(false);
+      } catch (error) {
+          console.error('Error deleting training unit:', error);
+      }
     };
 
     const onSubmitPlanEdit: SubmitHandler<TrainingPlanEditForm> = async (data: TrainingPlanEditForm) => {
@@ -230,7 +253,7 @@ const Dashboard = () => {
                         <Box sx={{display: "flex", gap: "20px"}}>
                           <h2>{mainTrainingPlan.name}</h2>
                             <IconButton
-                              onClick={handleDeleteClick}
+                              onClick={handleDeleteClickPlan}
                               aria-label="delete"
                               title="Delete Training Plan"
                             >
@@ -253,16 +276,16 @@ const Dashboard = () => {
                             <AddIcon sx={{fontSize: "40px"}}/>
                           </IconButton>
                         </Box>
-                        <Dialog open={openDialog} onClose={handleDialogClose}>
+                        <Dialog open={openDialogPlan} onClose={handleDialogClosePlan}>
                             <DialogTitle>Confirm Deletion</DialogTitle>
                             <DialogContent>
                                 <p>Are you sure you want to delete the training plan "{mainTrainingPlan.name}"?</p>
                             </DialogContent>
                             <DialogActions>
-                                <Button onClick={handleDialogClose} color="primary">
+                                <Button onClick={handleDialogClosePlan} color="primary">
                                     Cancel
                                 </Button>
-                                <Button onClick={handleDeleteConfirm} color="secondary">
+                                <Button onClick={handleDeleteConfirmPlan} color="secondary">
                                     Delete
                                 </Button>
                             </DialogActions>
@@ -332,7 +355,37 @@ const Dashboard = () => {
                         <TrainingUnitBoxContainer>
                           {mainTrainingPlan.trainingUnits.map((trainingUnit, unitIndex) => (
                             <TrainingUnitBox key={trainingUnit.id}>
-                              <p>{`${unitIndex + 1}. ${trainingUnit.name}`}</p>
+                              <Box sx={{display: "flex"}}>
+                                <p>{`${unitIndex + 1}. ${trainingUnit.name}`}</p>
+                                <IconButton
+                                  onClick={handleDeleteUnit}
+                                  aria-label="delete"
+                                  title="Delete Training Unit"
+                                >
+                                  <DeleteIcon/>
+                                </IconButton>
+                                <IconButton
+                                  onClick={() => handleEditPlan(trainingUnit.id)}
+                                  aria-label="edit"
+                                  title="Edit Training Unit"
+                                >
+                                  <EditIcon />
+                                </IconButton>
+                                <Dialog open={openDialogUnit} onClose={handleDialogCloseUnit}>
+                                  <DialogTitle>Confirm Deletion</DialogTitle>
+                                  <DialogContent>
+                                      <p>Are you sure you want to delete the training unit "{trainingUnit.name}"?</p>
+                                  </DialogContent>
+                                  <DialogActions>
+                                      <Button onClick={handleDialogCloseUnit} color="primary">
+                                          Cancel
+                                      </Button>
+                                      <Button onClick={() => handleDeleteConfirmUnit(trainingUnit.id)} color="secondary">
+                                          Delete
+                                      </Button>
+                                  </DialogActions>
+                                </Dialog>
+                              </Box>
                               {trainingUnit.description && <p>{trainingUnit.description}</p>}
                               <StyledHr />
                               {sortedExercisesInUnit

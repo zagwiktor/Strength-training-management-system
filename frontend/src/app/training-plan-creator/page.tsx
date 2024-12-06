@@ -27,10 +27,10 @@ const TrainingPlanCreator = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [categoryMode, setCategoryMode] = useState<'new' | 'existing'>('new'); 
     const [newCategory, setNewCategory] = useState<string | null>(null);
+    const [existingCategory, setExistingCategory] = useState<number | null>(null);
     const [infoCreator, setInfoCreator] = useState<string[]>([]);
     const [infoCreatorPlan, setInfoCreatorPlan] = useState<string[]>([]);
     const [infoYourEx, setInfoYourEx] = useState<string | null>(null);
-    const [existingCategory, setExistingCategory] = useState<number | null>(null);
     const router = useRouter();
     const {
         register: registerPlan,
@@ -215,7 +215,7 @@ const TrainingPlanCreator = () => {
           ]);
           setNewUnitName(''); 
         }
-      };
+    };
 
     const handleDeleteExFromUnit = (unitIndex: number, exerciseIndex: number) => {
         setTrainingUnits((prevTrainingUnits) => {
