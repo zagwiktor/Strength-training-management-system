@@ -343,7 +343,7 @@ const AddTrainingUnit = () => {
                                         ) : null}
                                         {selectedYourExercise ? (
                                             <Box sx={{paddingBottom: "15px"}}>
-                                                <Button variant='outlined' onClick={handleAddExerciseToUnit}>Add to the plan</Button>
+                                                <Button variant='outlined' onClick={handleAddExerciseToUnit}>Add to the training unit</Button>
                                             </Box>
                                         ) : (
                                             <Box>

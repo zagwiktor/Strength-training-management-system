@@ -27,7 +27,7 @@ export default function NavBar() {
 
     const handleLogout = async () => {
       await apiClient.post('logout').then((response) => {
-        router.push('login');
+        router.push('/login');
       }).catch((errors) => {
         console.log(errors);
       })
@@ -85,7 +85,7 @@ export default function NavBar() {
                 </Button> 
                 <Divider orientation="vertical" variant="middle" flexItem />
                 <Button
-                    onClick={() => router.push('dashboard')}
+                    onClick={() => router.push('/dashboard')}
                     sx={{ my: 2, color: 'white', display: 'block' }}
                 >
                     Training Plans

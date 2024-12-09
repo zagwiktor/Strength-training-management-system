@@ -29,6 +29,7 @@ const Dashboard = () => {
     const [infoEditPlanDetails, setInfoEditPlanDetails] = useState<string | null>(null);
     const [openDialogPlan, setOpenDialogPlan] = useState(false);
     const [openDialogUnit, setOpenDialogUnit] = useState(false);
+    const [unitToDelete, setUnitToDelete] = useState<number | null>(null);
     const [editPlanDetailsVisible, setEditPlanDetailsVisible] = useState<boolean>(false);
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -156,19 +157,23 @@ const Dashboard = () => {
       router.push(`/edit-training-unit/${id}`);
     };
 
-    const handleDeleteUnit = () => {
+    const handleDeleteUnit = (id: number) => {
+      setUnitToDelete(id);
       setOpenDialogUnit(true);
     };
 
     const handleDialogCloseUnit = () => {
       setOpenDialogUnit(false);
+      setUnitToDelete(null);
     };
 
-    const handleDeleteConfirmUnit = async (id: number) => {
+    const handleDeleteConfirmUnit = async () => {
+      if (unitToDelete === null) return;
       try {
-        await apiClient.delete(`training-units/delete/${id}`);
+        await apiClient.delete(`training-units/delete/${unitToDelete}`);
         await getMainPlan();
         setOpenDialogUnit(false);
+        setUnitToDelete(null);
       } catch (error) {
           console.error('Error deleting training unit:', error);
       }
@@ -358,7 +363,7 @@ const Dashboard = () => {
                               <Box sx={{display: "flex"}}>
                                 <p>{`${unitIndex + 1}. ${trainingUnit.name}`}</p>
                                 <IconButton
-                                  onClick={handleDeleteUnit}
+                                  onClick={() => handleDeleteUnit(trainingUnit.id)}
                                   aria-label="delete"
                                   title="Delete Training Unit"
                                 >
@@ -374,13 +379,13 @@ const Dashboard = () => {
                                 <Dialog open={openDialogUnit} onClose={handleDialogCloseUnit}>
                                   <DialogTitle>Confirm Deletion</DialogTitle>
                                   <DialogContent>
-                                      <p>Are you sure you want to delete the training unit "{trainingUnit.name}"?</p>
+                                      <p>Are you sure you want to delete the training unit?</p>
                                   </DialogContent>
                                   <DialogActions>
                                       <Button onClick={handleDialogCloseUnit} color="primary">
                                           Cancel
                                       </Button>
-                                      <Button onClick={() => handleDeleteConfirmUnit(trainingUnit.id)} color="secondary">
+                                      <Button onClick={handleDeleteConfirmUnit} color="secondary">
                                           Delete
                                       </Button>
                                   </DialogActions>

@@ -18,7 +18,6 @@ type RegisterDataForm = {
     password: string,
     weight: number,
     height: number,
-    age: number,
     gender: "Male" | "Female",
 };
 
@@ -31,7 +30,6 @@ const RegisterForm = () => {
     const onSubmit:SubmitHandler<RegisterDataForm> = async (data: RegisterDataForm) => {
         data.height = parseFloat(data.height as unknown as string);
         data.weight = parseFloat(data.weight as unknown as string);
-        data.age = parseFloat(data.age as unknown as string);
         await apiClient.post('/register', data).then((response: AxiosResponse) => {
             router.push(`/login?user=${data.email}`);
         }).catch((errors) => {
@@ -78,21 +76,7 @@ const RegisterForm = () => {
                             {...register('password', {required: 'Password is required'})}
                             error={!!errors.password}
                             helperText={errors.password ? errors.password.message : ''}
-                        />
-                        <TextField
-                            id="register-form-age-input"
-                            label="Age (years)"
-                            type="number"
-                            variant="filled"
-                            slotProps={{
-                                inputLabel: {
-                                  shrink: true,
-                                },
-                            }}
-                            {...register('age', {required: 'Age is required'})}
-                            error={!!errors.age}
-                            helperText={errors.age ? errors.age.message : ''}
-                        />   
+                        /> 
                         <TextField
                             id="register-form-weight-input"
                             label="Weight (kg)"

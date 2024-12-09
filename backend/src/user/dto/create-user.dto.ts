@@ -38,10 +38,6 @@ export class CreateUserDto {
     @Min(0, { message: 'Height must be a positive number' })
     height: number;
 
-    @IsNumber()
-    @IsNotEmpty()
-    @Min(0, { message: 'Age must be a positive number' })
-    age: number;
 
     @IsString()
     @IsNotEmpty()

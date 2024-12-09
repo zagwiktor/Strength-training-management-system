@@ -27,7 +27,6 @@ export class UserService {
     user.surname = createUserDto.surname;
     user.weight = createUserDto.weight;
     user.height = createUserDto.height;
-    user.age = createUserDto.age;
     const savedUser = await this.userRepository.save(user);
     return plainToInstance(User, savedUser);
   }

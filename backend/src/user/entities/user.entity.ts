@@ -32,9 +32,6 @@ export class User {
     height: number;
 
     @Column()
-    age: number;
-
-    @Column()
     gender: "Male" | "Female";
 
     @OneToMany(() => ExerciseCategory, (exerciseCategory) => exerciseCategory.author)
