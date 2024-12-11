@@ -7,9 +7,29 @@ import { ColumnRaport, RaportDetailsBox, RaportMainBox} from "./_components/styl
 import { Autocomplete, Box, Button, TextField, IconButton, Dialog, DialogContent, DialogActions, DialogTitle } from "@mui/material";
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
-import axios, { AxiosError, AxiosResponse } from "axios";
+import axios from "axios";
 import { Raport, RaportFormData, TrainingPlan } from "./types";
+import { Line } from "react-chartjs-2";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale, 
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+} from 'chart.js';
 
+ChartJS.register(
+  CategoryScale, 
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 const apiClient = axios.create({
     baseURL: 'http://localhost:3000/',
@@ -24,6 +44,11 @@ const Raports = () => {
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [formMode, setFormMode] = useState<"add" | "edit" | null>(null);
     const [formData, setFormData] = useState<RaportFormData| null>(null);
+    const [chartsVisible, setChartsVisible] = useState(false);
+    const [chartData, setChartData] = useState<{
+      circuitData: any;
+      weightData: any;
+    } | null>(null);
     const [openDialog, setOpenDialog] = useState(false);
     const [info, setInfo] = useState<string[]>([]);
 
@@ -152,16 +177,73 @@ const Raports = () => {
         await apiClient.delete(`raports/delete/${selectedRaport?.id}`);
         await getRaportsAndPlan();
         setSelectedRaport(null);
+        setChartData(null);
         setOpenDialog(false);
       } catch (error) {
           console.error('Error deleting training unit:', error);
       }
     };
 
+    const handleGenerateCharts = () => {
+      if (yourRaports && Array.isArray(yourRaports) && yourRaports.length > 1) {
+        const labels = yourRaports.map(raport => raport.dateCreated);
+        const circuitData = {
+          labels,
+          datasets: [
+              {
+                  label: 'Chest Circuit',
+                  data: yourRaports.map(raport => raport.chestCircuit),
+                  borderColor: 'rgba(255, 99, 132, 1)',
+                  backgroundColor: 'rgba(255, 99, 132, 0.2)',
+              },
+              {
+                  label: 'Biceps Circuit',
+                  data: yourRaports.map(raport => raport.bicepsCircuit),
+                  borderColor: 'rgba(54, 162, 235, 1)',
+                  backgroundColor: 'rgba(54, 162, 235, 0.2)',
+              },
+              {
+                  label: 'Thigh Circuit',
+                  data: yourRaports.map(raport => raport.thighCircuit),
+                  borderColor: 'rgba(75, 192, 192, 1)',
+                  backgroundColor: 'rgba(75, 192, 192, 0.2)',
+              },
+              {
+                  label: 'Waist Circuit',
+                  data: yourRaports.map(raport => raport.waistCircuit),
+                  borderColor: 'rgba(153, 102, 255, 1)',
+                  backgroundColor: 'rgba(153, 102, 255, 0.2)',
+              },
+              {
+                  label: 'Calf Circuit',
+                  data: yourRaports.map(raport => raport.calfCircuit),
+                  borderColor: 'rgba(255, 159, 64, 1)',
+                  backgroundColor: 'rgba(255, 159, 64, 0.2)',
+              },
+          ],
+      }
+        const weightData = {
+          labels,
+          datasets: [
+              {
+                  label: 'Weight',
+                  data: yourRaports.map(raport => raport.weight),
+                  borderColor: 'rgba(75, 192, 192, 1)',
+                  backgroundColor: 'rgba(75, 192, 192, 0.2)',
+              },
+          ],
+        };
+        setChartData({ circuitData, weightData });
+        setChartsVisible(true)
+      };
+  
+      
+  };
+
     return (
         <>
             <NavBar/>
-            <StyledBoxShadow sx={{margin: "200px 0 100px 0"}}>
+            <StyledBoxShadow sx={{margin: "200px 0 70px 0"}}>
                 <RaportMainBox>
                     <ColumnRaport>
                         <p>Your Raports</p>
@@ -195,6 +277,23 @@ const Raports = () => {
                                 </Button>
                             </DialogActions>
                         </Dialog>
+                        {yourRaports && Array.isArray(yourRaports) && yourRaports.length > 1 ? (
+                            chartsVisible ? (
+                                <Box sx={{ marginTop: "15px", width: "100%" }}>
+                                    <Button sx={{width: "100%" }} variant="outlined" onClick={() => setChartsVisible(false)}>
+                                        Hide Charts
+                                    </Button>
+                                </Box>
+                            ) : (
+                                <Box sx={{ marginTop: "15px", width: "100%" }}>
+                                    <Button sx={{width: "100%" }} variant="outlined" onClick={handleGenerateCharts}>
+                                        See Charts
+                                    </Button>
+                                </Box>
+                            )
+                        ) : (
+                            <p>You must add at least two reports in order to generate charts.</p>
+                        )}
                         {selectedRaport ? (
                             <>
                             <RaportDetailsBox>
@@ -224,6 +323,7 @@ const Raports = () => {
                                     <p><strong>Weight:</strong> {selectedRaport.weight} kg</p>
                                 </Box>
                             </RaportDetailsBox>
+                            
                             </>
                         ) : (null)}
                     </ColumnRaport>
@@ -339,6 +439,18 @@ const Raports = () => {
                     )}
                 </RaportMainBox>
             </StyledBoxShadow>
+            {chartData && chartsVisible ? (
+                <StyledBoxShadow sx={{width: "60%", marginBottom: "100px"}}>
+                    <Box>
+                      <h3>Circuits Over Time</h3>
+                      <Line data={chartData.circuitData} />
+                    </Box>
+                    <Box sx={{marginTop: "100px"}}>
+                      <h3>Weight Over Time</h3>
+                      <Line data={chartData.weightData} />
+                    </Box>
+                </StyledBoxShadow>
+            ) : (null)}
         </>
     )
 }

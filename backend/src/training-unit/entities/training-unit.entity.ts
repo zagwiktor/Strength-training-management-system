@@ -22,7 +22,7 @@ export class TrainingUnit {
     @JoinColumn({ name: 'training_plan_id' })
     trainingPlan: TrainingPlan; 
 
-    @ManyToMany(() => Exercise, { cascade: true })
+    @ManyToMany(() => Exercise, (exercise) => exercise.trainingUnits, { cascade: true })
     @JoinTable({ name: 'training_unit_exercises' })
     exercises: Exercise[];
 

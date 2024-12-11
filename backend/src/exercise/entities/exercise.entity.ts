@@ -33,7 +33,7 @@ export class Exercise {
     categories: ExerciseCategory[];
 
     @ManyToMany(() => TrainingUnit, (trainingUnit) => trainingUnit.exercises ,{onDelete: 'CASCADE'})
-    trainingUnits: TrainingPlan[];
+    trainingUnits: TrainingUnit[];
 
     @ManyToOne(() => User, (user) => user.exercises, {onDelete: 'CASCADE'})
     @JoinColumn({ name: 'author_id' })

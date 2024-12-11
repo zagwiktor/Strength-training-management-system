@@ -406,8 +406,8 @@ const Dashboard = () => {
                                 .find(unit => unit.trainingUnitId === trainingUnit.id)
                                 ?.SortedExercises.map((sortedExercise, exerciseIndex) => {
                                   const { exercise } = sortedExercise;
+                                  if (!exercise) return null;
                                   const key = `${trainingUnit.id}-${exercise.id}`;
-                                
                                   return (
                                     <ExerciseBox key={key}>
                                       <Box>
@@ -449,9 +449,9 @@ const Dashboard = () => {
                                         </Box>
                                         <Collapse in={!!expandedExercises[key]}>
                                           {exercise.description && <p>{exercise.description}</p>}
-                                          <p>Sets: {exercise.sets}</p>
-                                          <p>Reps: {exercise.reps}</p>
-                                          {exercise.tempo && <p>Tempo: {exercise.tempo.join('-')}</p>}
+                                          <p><strong>Sets:</strong> {exercise.sets}</p>
+                                          <p><strong>Reps:</strong> {exercise.reps}</p>
+                                          {exercise.tempo && <p><strong>Tempo:</strong>  {exercise.tempo.join('-')}</p>}
                                         </Collapse>
                                       </Box>
                                     </ExerciseBox>

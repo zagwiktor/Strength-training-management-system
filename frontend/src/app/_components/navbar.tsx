@@ -71,6 +71,7 @@ export default function NavBar() {
               <Box sx={{ flexGrow: 0, gap: "20px", display: { xs: 'none', md: 'flex' } }}> 
                 <Divider orientation="vertical" variant="middle" flexItem />
                 <Button
+                    onClick={() => router.push('/exercises')}
                     sx={{ my: 2, color: 'white', display: 'block' }}
                 >
                     Exercises
