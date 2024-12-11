@@ -1,4 +1,4 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Exclude } from 'class-transformer';
 import { ExerciseCategory } from "src/exercise-category/entities/exercise-category.entity";
 import { Exercise } from "src/exercise/entities/exercise.entity";
@@ -40,8 +40,8 @@ export class User {
     @OneToMany(() => Exercise, (exercises) => exercises.author)
     exercises: Exercise[];
 
-    @OneToMany(() => Diet, (diet) => diet.author)
-    diet: Diet[];
+    @OneToOne(() => Diet, (diet) => diet.author)
+    diet: Diet;
 
     @OneToMany(() => TrainingPlan, (traningPlan) => traningPlan.author)
     traningPlans: TrainingPlan[];

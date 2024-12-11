@@ -1,3 +1,25 @@
+export interface Raport {
+    id: number;
+    dateCreated: string; 
+    weight: number; 
+    chestCircuit: number; 
+    bicepsCircuit: number; 
+    thighCircuit: number; 
+    waistCircuit: number; 
+    calfCircuit: number; 
+    loads?: Record<string, number>; 
+};
+
+export interface RaportFormData {
+    id?: number | null;
+    dateCreated?: string | null; 
+    weight?: number | null; 
+    chestCircuit?: number | null; 
+    bicepsCircuit?: number | null; 
+    thighCircuit?: number | null; 
+    waistCircuit?: number | null; 
+    calfCircuit?: number | null; 
+};
 
 export interface TrainingUnit {
     id: number;
@@ -16,7 +38,7 @@ export interface TrainingPlan {
   trainingUnits: TrainingUnit[];
 }
   
-interface Exercise {
+export interface Exercise {
   id: number;
   name: string;
   description: string;
@@ -27,7 +49,7 @@ interface Exercise {
   categories?: Category[]
 }
 
-interface Category {
+export interface Category {
   id: number;
   name: string;
   exercises?: Exercise[];

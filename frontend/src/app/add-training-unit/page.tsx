@@ -9,8 +9,6 @@ import { useRouter } from 'next/navigation';
 import { ExerciseBox, NameForTrainingUnitBox, TrainingUnitBox, UnitCreatorExColumnBox, UnitCreatorExMainBox, StyledHr, YourExBox} from './_components/styled-components';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { SubmitHandler, useForm } from 'react-hook-form';
-import { error } from 'console';
-
 
 const apiClient = axios.create({
     baseURL: 'http://localhost:3000/',

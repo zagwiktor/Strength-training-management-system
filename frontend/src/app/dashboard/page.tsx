@@ -12,7 +12,9 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import AddIcon from '@mui/icons-material/Add';
+import AnalyticsIcon from '@mui/icons-material/Analytics';
 import { set, SubmitHandler, useForm } from 'react-hook-form';
+
 
 const apiClient = axios.create({
   baseURL: 'http://localhost:3000/',
@@ -271,6 +273,13 @@ const Dashboard = () => {
                             >
                                 <EditIcon sx={{fontSize: "30px"}}/>
                             </IconButton>
+                            <IconButton
+                              onClick={() => router.push('/raports')}
+                              aria-label="edit"
+                              title="See raports"
+                            >
+                                <AnalyticsIcon sx={{fontSize: "30px"}}/>
+                            </IconButton>
                         </Box>
                         <Box sx={{display: "flex", justifyContent: "center"}}>
                           <IconButton
@@ -418,13 +427,13 @@ const Dashboard = () => {
                                                 <ArrowDropUpIcon />
                                               </IconArrowBox>
                                             ) : null}
-                                            {exerciseIndex < sortedExercisesInUnit.length - 1 ? (
+                                            {exerciseIndex < (sortedExercisesInUnit.find(unit => unit.trainingUnitId === trainingUnit.id)?.SortedExercises?.length ?? 0) - 1 && (
                                               <IconArrowBox
                                               onClick={() => handleDownExercise(trainingUnit.id, exercise.id)}
                                               >
                                                 <ArrowDropDownIcon />
                                               </IconArrowBox>
-                                            ) : null}            
+                                            )}         
                                           </Box>
                                         </Box>
                                         <Box>

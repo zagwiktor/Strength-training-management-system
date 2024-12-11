@@ -69,5 +69,5 @@ export const StyledHr = styled.hr(() => ({
     border: 'none', 
     backgroundColor: '#888888',        
     margin: '5px 0 10px 0',    
-  }));
+}));
   

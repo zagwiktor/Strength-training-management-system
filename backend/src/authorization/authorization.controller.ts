@@ -11,18 +11,29 @@ export class AuthorizationController {
   ) {}
 
   @HttpCode(HttpStatus.OK)
-  @Post('login')
-  async siginIn(@Body() signInDto: Record<string, any>, @Res() response: Response) {
-    const access_token  = await this.authorizationService.signIn(signInDto.email, signInDto.password);
-    response.cookie('jwt', access_token, {
-      httpOnly: true,
-      sameSite:'lax',
-      secure: false,
-      path: '/', 
-      maxAge: 24 * 60 * 60 * 1000
-    });
-    return response.send({ message: 'Logged in successfully' });
-  }
+@Post('login')
+async siginIn(@Body() signInDto: Record<string, any>, @Res() response: Response) {
+
+  const { accessToken, userId } = await this.authorizationService.signIn(signInDto.email, signInDto.password);
+
+  response.cookie('jwt', accessToken, {
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: false,
+    path: '/',
+    maxAge: 24 * 60 * 60 * 1000, 
+  });
+
+  response.cookie('userId', userId, {
+    httpOnly: false, 
+    sameSite: 'lax',
+    secure: false,
+    path: '/',
+    maxAge: 24 * 60 * 60 * 1000, 
+  });
+
+  return response.send({ message: 'Logged in successfully' });
+}
 
   @HttpCode(HttpStatus.OK)
   @Post('register')
@@ -35,11 +46,20 @@ export class AuthorizationController {
   async logout(@Res() response: Response) {
     response.cookie('jwt', '', {
       httpOnly: true,
-      sameSite:'lax',
+      sameSite: 'lax',
       secure: false,
-      path: '/', 
-      maxAge: 0
+      path: '/',
+      maxAge: 0,
     });
-    return response.send({message: 'Logged out successfully'});
+  
+    response.cookie('userId', '', {
+      httpOnly: false, 
+      sameSite: 'lax',
+      secure: false,
+      path: '/',
+      maxAge: 0, 
+    });
+  
+    return response.send({ message: 'Logged out successfully' });
   }
 }

@@ -8,10 +8,6 @@ import { UserService } from 'src/user/user.service';
 import { TrainingPlanService } from 'src/training-plan/training-plan.service';
 
 
-/**
- * TODO
- * Zrobić podmiane wagi usera przy dodawaniu nowego raportu 
- */
 @Injectable()
 export class RaportService {
   constructor(
@@ -28,16 +24,17 @@ export class RaportService {
     newRaport.author = user;
     newRaport.bicepsCircuit = createRaportDto.bicepsCircuit;
     newRaport.calfCircuit = createRaportDto.calfCircuit;
+    newRaport.dateCreated = createRaportDto.dateCreated;
     newRaport.chestCircuit = createRaportDto.chestCircuit;
-    newRaport.description = createRaportDto.description;
-    newRaport.name = createRaportDto.name;
     newRaport.thighCircuit = createRaportDto.thighCircuit;
     newRaport.waistCircuit = createRaportDto.waistCircuit;
     newRaport.weight = createRaportDto.weight;
     newRaport.loads = createRaportDto.loads;
     const traningPlan = await this.traningPlanService.findOne(createRaportDto.trainingPlanId, userId);
     newRaport.trainingPlan = traningPlan;
-    return await this.raportRepository.save(newRaport);
+    const raportRes = await this.raportRepository.save(newRaport);
+    const {author, trainingPlan, ...raport} = raportRes;
+    return raport;
   }
 
   async findAll(userId: number, trainingPlanId: number) {

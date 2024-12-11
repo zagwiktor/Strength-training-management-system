@@ -51,9 +51,7 @@ export default function NavBar() {
           open={isMenuOpen}
           onClose={handleMenuClose}
         >
-          {/* <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
-          <MenuItem onClick={handleMenuClose}>My account</MenuItem> */}
-          <MenuItem>My account</MenuItem>
+          <MenuItem onClick={() => router.push('/account')}>My account</MenuItem>
           <MenuItem onClick={handleLogout}>Logout</MenuItem>
         </Menu>
     );

@@ -1,4 +1,4 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -31,10 +31,6 @@ export class UserService {
     return plainToInstance(User, savedUser);
   }
 
-  findAll() {
-    return `This action returns all user`;
-  }
-
   async findOne(user: string | number): Promise<User | null>  {
     if (typeof user === 'string') {
       return await this.userRepository.findOne({
@@ -45,11 +41,50 @@ export class UserService {
     }
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  async update(id: number, updateUserDto: UpdateUserDto): Promise<User> {
+    const existingUser = await this.userRepository.findOne({ where: { id } });
+  
+    if (!existingUser) {
+      throw new NotFoundException(`User with ID ${id} not found`);
+    }
+    if (updateUserDto.email) {
+      const emailTaken = await this.userRepository.findOne({ where: { email: updateUserDto.email } });
+      if (emailTaken && emailTaken.id !== id) {
+        throw new ConflictException('Email already exists');
+      }
+      existingUser.email = updateUserDto.email;
+    }
+    if (updateUserDto.name) {
+      existingUser.name = updateUserDto.name;
+    }
+    if (updateUserDto.surname) {
+      existingUser.surname = updateUserDto.surname;
+    }
+    if (updateUserDto.gender) {
+      existingUser.gender = updateUserDto.gender;
+    }
+    if (updateUserDto.weight !== undefined) {
+      existingUser.weight = updateUserDto.weight;
+    }
+    if (updateUserDto.height !== undefined) {
+      existingUser.height = updateUserDto.height;
+    }
+    if (updateUserDto.password) {
+      const salt = await bcrypt.genSalt();
+      existingUser.password = await bcrypt.hash(updateUserDto.password, salt);
+    }
+    const updatedUser = await this.userRepository.save(existingUser);
+    return plainToInstance(User, updatedUser);
   }
-
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  
+  async remove(id: number): Promise<string> {
+    const existingUser = await this.userRepository.findOne({ where: { id } });
+  
+    if (!existingUser) {
+      throw new NotFoundException(`User with ID ${id} not found`);
+    }
+  
+    await this.userRepository.remove(existingUser);
+    return `User with ID ${id} has been removed`;
   }
 }

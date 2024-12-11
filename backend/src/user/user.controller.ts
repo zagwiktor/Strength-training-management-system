@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ValidationPipe, UsePipes } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Req, UnauthorizedException } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -12,23 +12,24 @@ export class UserController {
     return this.userService.create(createUserDto);
   }
 
-  @Get()
-  findAll() {
-    return this.userService.findAll();
+  @Get('get')
+  findOne(@Req() request) {
+    const userId = parseInt(request.cookies.userId, 10);
+    if (!userId) {
+      throw new UnauthorizedException('User ID not found in cookies');
+    }
+    return this.userService.findOne(userId);
   }
 
-  // @Get(':id')
-  // findOne(@Param('id') id: string) {
-  //   return this.userService.findOne(+id);
-  // }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.userService.update(+id, updateUserDto);
+  @Patch('update')
+  update(@Req() request, @Body() updateUserDto: UpdateUserDto) {
+    const userId = parseInt(request.cookies.userId, 10);
+    return this.userService.update(userId, updateUserDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.userService.remove(+id);
+  @Delete('delete')
+  remove(@Req() request) {
+    const userId = parseInt(request.cookies.userId, 10);
+    return this.userService.remove(userId);
   }
 }

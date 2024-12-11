@@ -1,22 +1,17 @@
 import { IsDate } from "class-validator";
 import { TrainingPlan } from "src/training-plan/entities/training-plan.entity";
 import { User } from "src/user/entities/user.entity";
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Unique } from "typeorm";
 
 
 @Entity()
+@Unique(['dateCreated', 'author'])
 export class Raport{
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column()
-    name: string;
-
-    @Column()
-    description: string;
-
     @Column({
-        type: 'timestamp',
+        type: 'date',
         default: () => 'CURRENT_TIMESTAMP',
     })
     @IsDate()

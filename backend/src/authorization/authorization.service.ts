@@ -32,7 +32,8 @@ constructor(
         throw new UnauthorizedException('Invalid credentials!');
       }
       const payload = { sub: user.id, username: user.email };
-      return await this.jwtService.signAsync(payload);
+      const accessToken = await this.jwtService.signAsync(payload);
+      return { accessToken, userId: user.id };
     }
 
     async singUp(createUserDto: CreateUserDto): Promise<User> {

@@ -28,9 +28,7 @@ export class DietService {
     newDiet.author = user;
     newDiet.calories = createDietDto.calories;
     newDiet.carbohydrates = createDietDto.carbohydrates;
-    newDiet.description = createDietDto.description;
     newDiet.fat = createDietDto.fat;
-    newDiet.name = createDietDto.name;
     newDiet.protein = createDietDto.protein;
     return await this.dietRepository.save(newDiet);
   }
