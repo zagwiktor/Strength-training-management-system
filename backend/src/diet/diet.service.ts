@@ -30,7 +30,9 @@ export class DietService {
     newDiet.carbohydrates = createDietDto.carbohydrates;
     newDiet.fat = createDietDto.fat;
     newDiet.protein = createDietDto.protein;
-    return await this.dietRepository.save(newDiet);
+    const result = await this.dietRepository.save(newDiet);
+    const {author, ...diet} = result;
+    return diet;
   }
 
   async findAll(userId: number) {
@@ -53,13 +55,25 @@ export class DietService {
   }
 
   async update(id: number, updateDietDto: UpdateDietDto, userId: number) {
-    await this.findOne(id, userId);
-    const updateResult = await this.dietRepository.update({id}, updateDietDto);
-    if(updateResult.affected === 0){
-      throw new NotFoundException(`Diet with this id ${id} not found`)
+    const existingDiet = await this.findOne(id, userId);
+    if (!existingDiet) {
+        throw new NotFoundException(`Diet with id ${id} not found`);
     }
-    return await this.findOne(id, userId);;
+    const user = await this.userService.findOne(userId);
+    if (!user) {
+        throw new NotFoundException('User not found');
+    }
+    const macronutrientsCondition = ((updateDietDto.carbohydrates * 4) + 
+                                      (updateDietDto.protein * 4) +
+                                      (updateDietDto.fat * 9) === updateDietDto.calories);
+
+    if (!macronutrientsCondition) {
+        throw new BadRequestException('Calories do not match the sum of macronutrients.');
+    }
+    await this.dietRepository.update({ id }, { ...updateDietDto });
+    return await this.findOne(id, userId);
   }
+
 
   async remove(id: number, userId: number) {
     const diet = await this.findOne(id, userId);

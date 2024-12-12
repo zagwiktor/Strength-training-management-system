@@ -78,6 +78,7 @@ export default function NavBar() {
                 </Button> 
                 <Divider orientation="vertical" variant="middle" flexItem />
                 <Button
+                    onClick={() => router.push('/diet')}
                     sx={{ my: 2, color: 'white', display: 'block' }}
                 >
                     Diet
