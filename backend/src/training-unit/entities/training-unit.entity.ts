@@ -1,13 +1,9 @@
-import { UseGuards } from "@nestjs/common";
-import { AuthGuard } from "src/authorization/auth.guard";
 import { Exercise } from "src/exercise/entities/exercise.entity";
 import { TrainingPlan } from "src/training-plan/entities/training-plan.entity";
 import { User } from "src/user/entities/user.entity";
 import { Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 
-
 @Entity()
-@UseGuards(AuthGuard)
 export class TrainingUnit {
     @PrimaryGeneratedColumn()
     id: number;

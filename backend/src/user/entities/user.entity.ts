@@ -7,7 +7,7 @@ import { TrainingPlan } from "src/training-plan/entities/training-plan.entity";
 import { Raport } from "src/raport/entities/raport.entity";
 import { TrainingUnit } from "src/training-unit/entities/training-unit.entity";
 
-@Entity()
+@Entity('users')
 export class User {
     @PrimaryGeneratedColumn()
     id: number;

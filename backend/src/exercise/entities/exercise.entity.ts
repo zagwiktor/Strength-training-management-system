@@ -35,7 +35,7 @@ export class Exercise {
     @ManyToMany(() => TrainingUnit, (trainingUnit) => trainingUnit.exercises ,{onDelete: 'CASCADE'})
     trainingUnits: TrainingUnit[];
 
-    @ManyToOne(() => User, (user) => user.exercises, {onDelete: 'CASCADE'})
+    @ManyToOne(() => User, (user) => user.exercises, {onDelete: 'CASCADE', nullable: false })
     @JoinColumn({ name: 'author_id' })
     author: User;
 }

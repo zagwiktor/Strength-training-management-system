@@ -6,7 +6,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Exercise } from './entities/exercise.entity';
 import { In, Repository } from 'typeorm';
 import { ExerciseCategoryService } from 'src/exercise-category/exercise-category.service';
-import e from 'express';
 
 @Injectable()
 export class ExerciseService {

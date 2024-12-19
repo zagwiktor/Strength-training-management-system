@@ -17,10 +17,12 @@ export class DietService {
     if (!user) {
       throw new NotFoundException('User not found');
     }
-    const macronutrientsCondition = ((createDietDto.carbohydrates * 4) + 
-                                      (createDietDto.protein * 4) 
-                                      + (createDietDto.fat * 9) 
-                                      === createDietDto.calories)
+    const macronutrientsCondition = Math.abs(
+      (createDietDto.carbohydrates * 4) +
+      (createDietDto.protein * 4) +
+      (createDietDto.fat * 9) -
+      createDietDto.calories
+    ) <= 50;
     if(!macronutrientsCondition) {
       throw new BadRequestException('Calories do not match the sum of macronutrients.');
     }

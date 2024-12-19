@@ -23,7 +23,7 @@ export class TrainingPlan {
     name: string;
 
     @Column()
-    description: string; 
+    description?: string; 
 
     @Column({
         type: 'timestamp',

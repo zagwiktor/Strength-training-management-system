@@ -18,6 +18,7 @@ import { TrainingUnitModule } from './training-unit/training-unit.module';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      envFilePath: process.env.NODE_ENV === 'test' ? '.env.test' : '.env',
   }),
   DatabaseModule,
   UserModule,
