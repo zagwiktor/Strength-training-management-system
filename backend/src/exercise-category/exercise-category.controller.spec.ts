@@ -78,7 +78,7 @@ describe('ExerciseCategoryController', () => {
 
     it('should return 400 for invalid data', async () => {
       const invalidExerciseCategoryDto = {
-        name: 'A', // Name too short
+        name: 'A', 
       };
 
       await request(app.getHttpServer())

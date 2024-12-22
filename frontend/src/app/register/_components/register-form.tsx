@@ -9,7 +9,7 @@ import { StyledBoxShadow } from "@/app/_components/styled-components";
 const apiClient = axios.create({
     baseURL: 'http://localhost:3000/auth',
     withCredentials: true
-  });
+});
 
 type RegisterDataForm = {
     name: string,

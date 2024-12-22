@@ -283,6 +283,7 @@ const TrainingPlanCreator = () => {
                               value={newUnitName}
                               onChange={(e) => setNewUnitName(e.target.value)}
                               sx={{ flex: 1 }}
+                              id="training-unit-name"
                             />
                             <Button variant="outlined" onClick={handleAddTrainingUnit} sx={{ height: 'maxHeight' }}>
                               Add
@@ -395,7 +396,7 @@ const TrainingPlanCreator = () => {
                                         options={yourExercises || []}
                                         getOptionLabel={(option) => option.name} 
                                         renderInput={(params) => (
-                                            <TextField {...params} label="Choose exercise" variant="outlined" />
+                                            <TextField {...params} label="Choose exercise" variant="outlined"/>
                                         )}
                                         value={selectedYourExercise}
                                         onChange={(event, newValue) => setSelectedYourExercise(newValue)}

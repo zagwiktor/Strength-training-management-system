@@ -4,7 +4,6 @@ import { In, Repository } from 'typeorm';
 import { ExerciseCategory } from './entities/exercise-category.entity';
 import { User } from 'src/user/entities/user.entity';
 import { NotFoundException } from '@nestjs/common';
-import { getRepositoryToken } from '@nestjs/typeorm';
 
 describe('ExerciseCategoryService', () => {
   let categoryService: ExerciseCategoryService;

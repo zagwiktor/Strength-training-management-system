@@ -5,7 +5,6 @@ import { UserService } from 'src/user/user.service';
 import { ExerciseCategoryService } from 'src/exercise-category/exercise-category.service';
 import { User } from 'src/user/entities/user.entity';
 import { ExerciseCategory } from 'src/exercise-category/entities/exercise-category.entity';
-import { getRepositoryToken } from '@nestjs/typeorm';
 import { NotFoundException, BadRequestException } from '@nestjs/common';
 import { CreateExerciseDto } from './dto/create-exercise.dto';
 
