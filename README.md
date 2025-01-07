@@ -111,7 +111,7 @@ Select and run desired tests from the Cypress interface.
 ![raports](https://github.com/user-attachments/assets/db3a0f11-bf8b-42e1-93d9-95c3cdbe0fa5)
 ![charts](https://github.com/user-attachments/assets/3b128ccb-8821-4bab-8efd-c1f9fb320559)
 
-##Diet
+### Diet
 ![diet](https://github.com/user-attachments/assets/90b36580-3858-4bb4-b86d-23e9a69eed97)
 
 
